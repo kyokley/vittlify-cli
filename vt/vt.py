@@ -82,7 +82,9 @@ def display_shopping_list(guid, show_done=False):
         table = AsciiTable(data)
         table.title = Color("{autoyellow}%(name)s{/autoyellow}" % {'name': shopping_list['name']})
         table.inner_heading_row_border = False
-        print table.table
+        print(table.table)
+    else:
+        print(Color("{autored}No data found.{/autored}"))
 
 def display_all_shopping_lists():
     shopping_lists = _get_all_shopping_lists()
@@ -95,7 +97,9 @@ def display_all_shopping_lists():
         table = AsciiTable(data)
         table.title = Color("{autoyellow}%(name)s{/autoyellow}" % {'name': 'All Lists'})
         table.inner_heading_row_border = False
-        print table.table
+        print(table.table)
+    else:
+        print(Color("{autored}No data found.{/autored}"))
 
 def _get_encoded_signature(message):
     signature = rsaObj.sign(message,
