@@ -1,4 +1,3 @@
-import argparse
 import requests
 import json
 import sys
@@ -22,6 +21,9 @@ with open(PRIVATE_KEY_FILENAME, 'rb') as f:
     PRIVATE_KEY = f.read()
 
 rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend())
+
+class VittlifyError(Exception):
+    pass
 
 def _get_all_shopping_lists():
     data = {'method': 'GET',
@@ -51,6 +53,10 @@ def _get_shopping_list_info(guid):
                'signature': encoded_sig}
     resp = requests.get(VITTLIFY_URL + 'vt/',
                         json=payload)
+
+    if resp.status_code == 409:
+        raise VittlifyError(resp.json())
+
     resp.raise_for_status()
     return resp.json()
 
@@ -67,6 +73,30 @@ def _get_shopping_list_items(guid):
                'signature': encoded_sig}
     resp = requests.get(VITTLIFY_URL + 'vt/',
                         json=payload)
+
+    if resp.status_code == 409:
+        raise VittlifyError(resp.json())
+
+    resp.raise_for_status()
+    return resp.json()
+
+def _get_item(guid):
+    data = {'method': 'GET',
+            'endpoint': 'item',
+            'guid': guid,
+            'username': USERNAME}
+
+    message = json.dumps(data)
+    encoded_sig = _get_encoded_signature(message)
+
+    payload = {'message': message,
+               'signature': encoded_sig}
+    resp = requests.get(VITTLIFY_URL + 'vt/',
+                        json=payload)
+
+    if resp.status_code == 409:
+        raise VittlifyError(resp.json())
+
     resp.raise_for_status()
     return resp.json()
 
@@ -75,16 +105,19 @@ def display_shopping_list(guid, show_done=False):
     data = []
     for item in _get_shopping_list_items(guid):
         if (not show_done and not item['done']) or show_done:
+            name = '+ ' + item['name'] if item['comments'] else '  ' + item['name']
             data.append([Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}),
-                         item['name']])
+                         name])
 
-    if data:
-        table = AsciiTable(data)
-        table.title = Color("{autoyellow}%(name)s{/autoyellow}" % {'name': shopping_list['name']})
-        table.inner_heading_row_border = False
-        print(table.table)
-    else:
-        print(Color("{autored}No data found.{/autored}"))
+    print_table(data, title=shopping_list['name'])
+
+def display_item(guid):
+    item = _get_item(guid)
+    data = []
+    data.append([Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}),
+                 item['name'],
+                 item['comments']])
+    print_table(data)
 
 def display_all_shopping_lists():
     shopping_lists = _get_all_shopping_lists()
@@ -93,9 +126,13 @@ def display_all_shopping_lists():
         data.append([Color('{autoblue}%(guid)s{/autoblue}' % {'guid': shopping_list['guid'][:8]}),
                      shopping_list['name']])
 
+    print_table(data, title='All Lists')
+
+def print_table(data, title=None):
     if data:
         table = AsciiTable(data)
-        table.title = Color("{autoyellow}%(name)s{/autoyellow}" % {'name': 'All Lists'})
+        if title:
+            table.title = Color("{autoyellow}%(title)s{/autoyellow}" % {'title': title})
         table.inner_heading_row_border = False
         print(table.table)
     else:
@@ -113,9 +150,22 @@ def main():
         if sys.argv[2].lower() == 'list':
             if len(sys.argv) != 4:
                 raise ValueError('Incorrect number of arguments')
-            display_shopping_list(sys.argv[3])
+            try:
+                display_shopping_list(sys.argv[3])
+            except VittlifyError as e:
+                print(Color("{autored}%s{/autored}" % e))
         elif sys.argv[2].lower() == 'lists':
-            display_all_shopping_lists()
+            try:
+                display_all_shopping_lists()
+            except VittlifyError as e:
+                print(Color("{autored}%s{/autored}" % e))
+        elif sys.argv[2].lower() == 'item':
+            if len(sys.argv) != 4:
+                raise ValueError('Incorrect number of arguments')
+            try:
+                display_item(sys.argv[3])
+            except VittlifyError as e:
+                print(Color("{autored}%s{/autored}" % e))
 
 if __name__ == '__main__':
     main()
