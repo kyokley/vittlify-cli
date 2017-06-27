@@ -49,7 +49,6 @@ def _get_shopping_list_info(guid):
             'endpoint': 'list',
             'guid': guid,
             'username': USERNAME}
-
     return _send_request(data)
 
 def _get_shopping_list_items(guid):
@@ -57,7 +56,6 @@ def _get_shopping_list_items(guid):
             'endpoint': 'list items',
             'guid': guid,
             'username': USERNAME}
-
     return _send_request(data)
 
 def _get_item(guid):
@@ -65,17 +63,20 @@ def _get_item(guid):
             'endpoint': 'item',
             'guid': guid,
             'username': USERNAME}
-
     return _send_request(data)
 
-def display_shopping_list(guid, show_done=False):
+def display_shopping_list(guid, show_done=False, extended=False):
     shopping_list = _get_shopping_list_info(guid)
     data = []
     for item in _get_shopping_list_items(guid):
         if (not show_done and not item['done']) or show_done:
             name = '+ ' + item['name'] if item['comments'] else '  ' + item['name']
-            data.append([Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}),
-                         name])
+            row = [Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}),
+                   name]
+            if extended:
+                row.append(item['comments'])
+
+            data.append(row)
 
     print_table(data, title=shopping_list['name'])
 
@@ -116,10 +117,13 @@ def _get_encoded_signature(message):
 def main():
     if sys.argv[1].lower() == 'show':
         if sys.argv[2].lower() == 'list':
-            if len(sys.argv) != 4:
+            if len(sys.argv) not in (4, 5):
                 raise ValueError('Incorrect number of arguments')
             try:
-                display_shopping_list(sys.argv[3])
+                if len(sys.argv) == 5 and sys.argv[4].lower() == 'extended':
+                    display_shopping_list(sys.argv[3], extended=True)
+                else:
+                    display_shopping_list(sys.argv[3])
             except VittlifyError as e:
                 print(Color("{autored}%s{/autored}" % e))
         elif sys.argv[2].lower() == 'lists':
