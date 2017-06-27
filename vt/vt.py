@@ -1,17 +1,14 @@
 import requests
 import json
 import sys
-#import os
 import base64
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
-#from cryptography.exceptions import InvalidSignature
 
 from colorclass import Color
 
 from terminaltables import AsciiTable
-from pprint import pprint
 
 VITTLIFY_URL = 'http://127.0.0.1:8000/vittlify/'
 PRIVATE_KEY_FILENAME = '/home/yokley/.ssh/id_rsa'
@@ -25,11 +22,7 @@ rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend()
 class VittlifyError(Exception):
     pass
 
-def _get_all_shopping_lists():
-    data = {'method': 'GET',
-            'endpoint': 'all lists',
-            'username': USERNAME}
-
+def _send_request(data):
     message = json.dumps(data)
     encoded_sig = _get_encoded_signature(message)
 
@@ -37,8 +30,19 @@ def _get_all_shopping_lists():
                'signature': encoded_sig}
     resp = requests.get(VITTLIFY_URL + 'vt/',
                         json=payload)
+
+    if resp.status_code == 409:
+        raise VittlifyError(resp.json())
+
     resp.raise_for_status()
     return resp.json()
+
+def _get_all_shopping_lists():
+    data = {'method': 'GET',
+            'endpoint': 'all lists',
+            'username': USERNAME}
+
+    return _send_request(data)
 
 def _get_shopping_list_info(guid):
     data = {'method': 'GET',
@@ -46,19 +50,7 @@ def _get_shopping_list_info(guid):
             'guid': guid,
             'username': USERNAME}
 
-    message = json.dumps(data)
-    encoded_sig = _get_encoded_signature(message)
-
-    payload = {'message': message,
-               'signature': encoded_sig}
-    resp = requests.get(VITTLIFY_URL + 'vt/',
-                        json=payload)
-
-    if resp.status_code == 409:
-        raise VittlifyError(resp.json())
-
-    resp.raise_for_status()
-    return resp.json()
+    return _send_request(data)
 
 def _get_shopping_list_items(guid):
     data = {'method': 'GET',
@@ -66,19 +58,7 @@ def _get_shopping_list_items(guid):
             'guid': guid,
             'username': USERNAME}
 
-    message = json.dumps(data)
-    encoded_sig = _get_encoded_signature(message)
-
-    payload = {'message': message,
-               'signature': encoded_sig}
-    resp = requests.get(VITTLIFY_URL + 'vt/',
-                        json=payload)
-
-    if resp.status_code == 409:
-        raise VittlifyError(resp.json())
-
-    resp.raise_for_status()
-    return resp.json()
+    return _send_request(data)
 
 def _get_item(guid):
     data = {'method': 'GET',
@@ -86,19 +66,7 @@ def _get_item(guid):
             'guid': guid,
             'username': USERNAME}
 
-    message = json.dumps(data)
-    encoded_sig = _get_encoded_signature(message)
-
-    payload = {'message': message,
-               'signature': encoded_sig}
-    resp = requests.get(VITTLIFY_URL + 'vt/',
-                        json=payload)
-
-    if resp.status_code == 409:
-        raise VittlifyError(resp.json())
-
-    resp.raise_for_status()
-    return resp.json()
+    return _send_request(data)
 
 def display_shopping_list(guid, show_done=False):
     shopping_list = _get_shopping_list_info(guid)
