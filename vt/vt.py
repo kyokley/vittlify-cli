@@ -42,31 +42,33 @@ def display_all_shopping_lists():
 
     print_table(data, title='All Lists')
 
+def show(args):
+    if args[0].lower() == 'list':
+        if len(args) not in (2, 3):
+            raise ValueError('Incorrect number of arguments')
+        try:
+            if len(args) == 3 and args[2].lower() == 'extended':
+                display_shopping_list(args[1], extended=True)
+            else:
+                display_shopping_list(args[1])
+        except VittlifyError as e:
+            print(Color("{autored}%s{/autored}" % e))
+    elif args[0].lower() == 'lists':
+        try:
+            display_all_shopping_lists()
+        except VittlifyError as e:
+            print(Color("{autored}%s{/autored}" % e))
+    elif args[0].lower() == 'item':
+        if len(args) != 2:
+            raise ValueError('Incorrect number of arguments')
+        try:
+            display_item(args[1])
+        except VittlifyError as e:
+            print(Color("{autored}%s{/autored}" % e))
 
 def main():
     if sys.argv[1].lower() == 'show':
-        if sys.argv[2].lower() == 'list':
-            if len(sys.argv) not in (4, 5):
-                raise ValueError('Incorrect number of arguments')
-            try:
-                if len(sys.argv) == 5 and sys.argv[4].lower() == 'extended':
-                    display_shopping_list(sys.argv[3], extended=True)
-                else:
-                    display_shopping_list(sys.argv[3])
-            except VittlifyError as e:
-                print(Color("{autored}%s{/autored}" % e))
-        elif sys.argv[2].lower() == 'lists':
-            try:
-                display_all_shopping_lists()
-            except VittlifyError as e:
-                print(Color("{autored}%s{/autored}" % e))
-        elif sys.argv[2].lower() == 'item':
-            if len(sys.argv) != 4:
-                raise ValueError('Incorrect number of arguments')
-            try:
-                display_item(sys.argv[3])
-            except VittlifyError as e:
-                print(Color("{autored}%s{/autored}" % e))
+        show(sys.argv[2:])
 
 if __name__ == '__main__':
     main()
