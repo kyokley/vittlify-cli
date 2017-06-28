@@ -43,26 +43,36 @@ def display_all_shopping_lists():
     print_table(data, title='All Lists')
 
 def show(args):
-    if args[0].lower() == 'list':
-        if len(args) not in (2, 3):
+    cmd = args.pop(0).lower()
+    options = args
+
+    if cmd == 'list':
+        guid = options.pop(0)
+
+        if not guid:
             raise ValueError('Incorrect number of arguments')
+
         try:
-            if len(args) == 3 and args[2].lower() == 'extended':
-                display_shopping_list(args[1], extended=True)
+            if 'extended' in options:
+                display_shopping_list(guid, extended=True)
             else:
-                display_shopping_list(args[1])
+                display_shopping_list(guid)
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
-    elif args[0].lower() == 'lists':
+
+    elif cmd == 'lists':
         try:
             display_all_shopping_lists()
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
-    elif args[0].lower() == 'item':
-        if len(args) != 2:
+    elif cmd == 'item':
+        guid = options.pop(0)
+
+        if not guid:
             raise ValueError('Incorrect number of arguments')
+
         try:
-            display_item(args[1])
+            display_item(guid)
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
 
