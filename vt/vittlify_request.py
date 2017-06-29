@@ -19,7 +19,7 @@ def _send_request(data):
     resp = requests.get(VITTLIFY_URL + 'vt/',
                         json=payload)
 
-    if resp.status_code == 409:
+    if resp.status_code in (404, 409):
         raise VittlifyError(resp.json())
 
     resp.raise_for_status()
