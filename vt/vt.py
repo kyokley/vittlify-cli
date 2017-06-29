@@ -6,23 +6,33 @@ from vittlify_request import (VittlifyError,
                               get_shopping_list_info,
                               get_shopping_list_items,
                               get_item,
+                              get_completed,
+                              complete_item,
                               )
 from utils import print_table
 
-def display_shopping_list(guid, show_done=False, extended=False):
-    shopping_list = get_shopping_list_info(guid)
+def display_shopping_list(guid=None, extended=False, completed=False):
     data = []
-    for item in get_shopping_list_items(guid):
-        if (not show_done and not item['done']) or show_done:
-            name = '+ ' + item['name'] if item['comments'] else '  ' + item['name']
-            row = [Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}),
-                   name]
-            if extended:
-                row.append(item['comments'])
+    name = ''
 
-            data.append(row)
+    if not completed:
+        shopping_list = get_shopping_list_info(guid)
+        title = shopping_list['name']
+        items = get_shopping_list_items(guid)
+    else:
+        items = get_completed()
+        title = 'Recently Completed'
 
-    print_table(data, title=shopping_list['name'])
+    for item in items:
+        name = '+ ' + item['name'] if item['comments'] else '  ' + item['name']
+        row = [Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}),
+               name]
+        if extended:
+            row.append(item['comments'])
+
+        data.append(row)
+
+    print_table(data, title=title)
 
 def display_item(guid):
     item = get_item(guid)
@@ -54,9 +64,9 @@ def show(args):
 
         try:
             if 'extended' in options:
-                display_shopping_list(guid, extended=True)
+                display_shopping_list(guid=guid, extended=True)
             else:
-                display_shopping_list(guid)
+                display_shopping_list(guid=guid)
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
 
@@ -75,10 +85,22 @@ def show(args):
             display_item(guid)
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
+    elif cmd in ('done', 'completed'):
+        if 'extended' in options:
+            display_shopping_list(extended=True, completed=True)
+        else:
+            display_shopping_list(completed=True)
+
+def complete(args):
+    guid = args.pop(0)
+    resp = complete_item(guid)
+    print Color('Marked {autogreen}%s{/autogreen} as done.' % resp['name'])
 
 def main():
     if sys.argv[1].lower() == 'show':
         show(sys.argv[2:])
+    elif sys.argv[1].lower() in ('done', 'complete'):
+        complete(sys.argv[2:])
 
 if __name__ == '__main__':
     main()

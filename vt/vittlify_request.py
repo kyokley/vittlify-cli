@@ -10,14 +10,19 @@ USERNAME = os.environ.get('VT_USERNAME') or os.environ.get('USER')
 class VittlifyError(Exception):
     pass
 
-def _send_request(data):
+def _send_request(method, data):
     message = json.dumps(data)
     encoded_sig = get_encoded_signature(message)
 
     payload = {'message': message,
                'signature': encoded_sig}
-    resp = requests.get(VITTLIFY_URL + 'vt/',
-                        json=payload)
+
+    if method.lower() == 'get':
+        resp = requests.get(VITTLIFY_URL + 'vt/',
+                            json=payload)
+    elif method.lower() == 'put':
+        resp = requests.put(VITTLIFY_URL + 'vt/',
+                            json=payload)
 
     if resp.status_code in (404, 409):
         raise VittlifyError(resp.json())
@@ -26,30 +31,36 @@ def _send_request(data):
     return resp.json()
 
 def get_all_shopping_lists():
-    data = {'method': 'GET',
-            'endpoint': 'all lists',
+    data = {'endpoint': 'all lists',
             'username': USERNAME}
 
-    return _send_request(data)
+    return _send_request('GET', data)
 
 def get_shopping_list_info(guid):
-    data = {'method': 'GET',
-            'endpoint': 'list',
+    data = {'endpoint': 'list',
             'guid': guid,
             'username': USERNAME}
-    return _send_request(data)
+    return _send_request('GET', data)
 
 def get_shopping_list_items(guid):
-    data = {'method': 'GET',
-            'endpoint': 'list items',
+    data = {'endpoint': 'list items',
             'guid': guid,
             'username': USERNAME}
-    return _send_request(data)
+    return _send_request('GET', data)
+
+def get_completed():
+    data = {'endpoint': 'completed',
+            'username': USERNAME}
+    return _send_request('GET', data)
 
 def get_item(guid):
-    data = {'method': 'GET',
-            'endpoint': 'item',
+    data = {'endpoint': 'item',
             'guid': guid,
             'username': USERNAME}
-    return _send_request(data)
+    return _send_request('GET', data)
 
+def complete_item(guid):
+    data = {'endpoint': 'complete',
+            'guid': guid,
+            'username': USERNAME}
+    return _send_request('PUT', data)
