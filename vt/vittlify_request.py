@@ -48,6 +48,12 @@ def get_shopping_list_items(guid):
             'username': USERNAME}
     return _send_request('GET', data)
 
+def get_all_shopping_list_items(guid):
+    data = {'endpoint': 'list all items',
+            'guid': guid,
+            'username': USERNAME}
+    return _send_request('GET', data)
+
 def get_completed():
     data = {'endpoint': 'completed',
             'username': USERNAME}
@@ -59,8 +65,8 @@ def get_item(guid):
             'username': USERNAME}
     return _send_request('GET', data)
 
-def complete_item(guid):
-    data = {'endpoint': 'complete',
+def complete_item(guid, uncomplete=False):
+    data = {'endpoint': 'complete' if not uncomplete else 'uncomplete',
             'guid': guid,
             'username': USERNAME}
     return _send_request('PUT', data)

@@ -5,30 +5,48 @@ from vittlify_request import (VittlifyError,
                               get_all_shopping_lists,
                               get_shopping_list_info,
                               get_shopping_list_items,
+                              get_all_shopping_list_items,
                               get_item,
                               get_completed,
                               complete_item,
                               )
 from utils import print_table
 
-def display_shopping_list(guid=None, extended=False, completed=False):
+(COMPLETED,
+ NOT_COMPLETED,
+ ALL) = range(3)
+
+def display_shopping_list(guid=None, extended=False, mode=NOT_COMPLETED):
     data = []
     name = ''
 
-    if not completed:
+    if mode == NOT_COMPLETED:
         shopping_list = get_shopping_list_info(guid)
         title = shopping_list['name']
         items = get_shopping_list_items(guid)
-    else:
+    elif mode == COMPLETED:
         items = get_completed()
         title = 'Recently Completed'
+    elif mode == ALL:
+        shopping_list = get_shopping_list_info(guid)
+        title = shopping_list['name']
+        items = get_all_shopping_list_items(guid)
 
     for item in items:
         name = '+ ' + item['name'] if item['comments'] else '  ' + item['name']
-        row = [Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}),
-               name]
+        name = Color('{automagenta}%s{/automagenta}' % name)
+        row = [Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]})]
+
+        if mode == ALL and item['done']:
+            name = Color('{strike}%s{/strike}' % name)
+
+        row.append(name)
+
         if extended:
-            row.append(item['comments'])
+            comments = item['comments']
+            if mode == ALL and item['done']:
+                comments = Color('{strike}%s{/strike}' % comments)
+            row.append(comments)
 
         data.append(row)
 
@@ -36,8 +54,9 @@ def display_shopping_list(guid=None, extended=False, completed=False):
 
 def display_item(guid):
     item = get_item(guid)
+    name = Color('{automagenta}%s{/automagenta}' % item['name'])
     row = [Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}),
-           item['name']]
+           name]
 
     if item['comments']:
         row.append(item['comments'])
@@ -64,7 +83,7 @@ def show(args):
 
         try:
             if 'extended' in options:
-                display_shopping_list(guid=guid, extended=True)
+                display_shopping_list(guid=guid, extended=True, mode=ALL)
             else:
                 display_shopping_list(guid=guid)
         except VittlifyError as e:
@@ -87,20 +106,26 @@ def show(args):
             print(Color("{autored}%s{/autored}" % e))
     elif cmd in ('done', 'completed'):
         if 'extended' in options:
-            display_shopping_list(extended=True, completed=True)
+            display_shopping_list(extended=True, mode=COMPLETED)
         else:
-            display_shopping_list(completed=True)
+            display_shopping_list(mode=COMPLETED)
 
-def complete(args):
+def complete(args, uncomplete=False):
     guid = args.pop(0)
-    resp = complete_item(guid)
-    print Color('Marked {autogreen}%s{/autogreen} as done.' % resp['name'])
+    resp = complete_item(guid, uncomplete=uncomplete)
+
+    if not uncomplete:
+        print Color('Marked {strike}{automagenta}%s{/automagenta}{/strike} as done.' % resp['name'])
+    else:
+        print Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name'])
 
 def main():
     if sys.argv[1].lower() == 'show':
         show(sys.argv[2:])
     elif sys.argv[1].lower() in ('done', 'complete'):
         complete(sys.argv[2:])
+    elif sys.argv[1].lower() in ('undone', 'uncomplete'):
+        complete(sys.argv[2:], uncomplete=True)
 
 if __name__ == '__main__':
     main()
