@@ -48,7 +48,7 @@ def format_row(item, include_comments=False):
         if item.get('done'):
             comments = '{strike}%s{/strike}' % comments
 
-        row.append(Color(comments))
+        row.append(comments)
     return row
 
 def get_encoded_signature(message):

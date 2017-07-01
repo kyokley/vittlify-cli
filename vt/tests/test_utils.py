@@ -18,9 +18,80 @@ class TestFormatRow(unittest.TestCase):
                 'name': 'test_name'}
 
         expected = ['guid_Color', 'name_Color']
-        #import pdb; pdb.set_trace()
         actual = format_row(item)
 
         self.assertEqual(expected, actual)
         self.mock_Color.assert_has_calls([mock.call('{autoblue}asdf{/autoblue}'),
-                                         mock.call('{automagenta}  test_name{/automagenta}')])
+                                          mock.call('{automagenta}  test_name{/automagenta}')])
+
+    def test_item_with_comments(self):
+        self.mock_Color.side_effect = ['guid_Color', 'name_Color']
+
+        item = {'guid': 'asdf',
+                'name': 'test_name',
+                'comments': 'test_comments'}
+
+        expected = ['guid_Color', 'name_Color']
+        actual = format_row(item)
+
+        self.assertEqual(expected, actual)
+        self.mock_Color.assert_has_calls([mock.call('{autoblue}asdf{/autoblue}'),
+                                          mock.call('{automagenta}+ test_name{/automagenta}')])
+
+    def test_item_with_comments_include_comments(self):
+        self.mock_Color.side_effect = ['guid_Color', 'name_Color']
+
+        item = {'guid': 'asdf',
+                'name': 'test_name',
+                'comments': 'test_comments'}
+
+        expected = ['guid_Color', 'name_Color', 'test_comments']
+        actual = format_row(item, include_comments=True)
+
+        self.assertEqual(expected, actual)
+        self.mock_Color.assert_has_calls([mock.call('{autoblue}asdf{/autoblue}'),
+                                          mock.call('{automagenta}+ test_name{/automagenta}')])
+
+    def test_no_comments_done(self):
+        self.mock_Color.side_effect = ['guid_Color', 'name_Color']
+
+        item = {'guid': 'asdf',
+                'name': 'test_name',
+                'done': True}
+
+        expected = ['guid_Color', 'name_Color']
+        actual = format_row(item)
+
+        self.assertEqual(expected, actual)
+        self.mock_Color.assert_has_calls([mock.call('{strike}{autoblue}asdf{/autoblue}{/strike}'),
+                                          mock.call('{strike}{automagenta}  test_name{/automagenta}{/strike}')])
+
+    def test_item_with_comments_done(self):
+        self.mock_Color.side_effect = ['guid_Color', 'name_Color']
+
+        item = {'guid': 'asdf',
+                'name': 'test_name',
+                'comments': 'test_comments',
+                'done': True}
+
+        expected = ['guid_Color', 'name_Color']
+        actual = format_row(item)
+
+        self.assertEqual(expected, actual)
+        self.mock_Color.assert_has_calls([mock.call('{strike}{autoblue}asdf{/autoblue}{/strike}'),
+                                          mock.call('{strike}{automagenta}+ test_name{/automagenta}{/strike}')])
+
+    def test_item_with_comments_include_comments_done(self):
+        self.mock_Color.side_effect = ['guid_Color', 'name_Color']
+
+        item = {'guid': 'asdf',
+                'name': 'test_name',
+                'comments': 'test_comments',
+                'done': True}
+
+        expected = ['guid_Color', 'name_Color', '{strike}test_comments{/strike}']
+        actual = format_row(item, include_comments=True)
+
+        self.assertEqual(expected, actual)
+        self.mock_Color.assert_has_calls([mock.call('{strike}{autoblue}asdf{/autoblue}{/strike}'),
+                                          mock.call('{strike}{automagenta}+ test_name{/automagenta}{/strike}')])
