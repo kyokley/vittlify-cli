@@ -33,14 +33,16 @@ def display_shopping_list(guid=None, extended=False, mode=NOT_COMPLETED):
         items = get_all_shopping_list_items(guid)
 
     for item in items:
+        row = []
         name = '+ ' + item['name'] if item['comments'] else '  ' + item['name']
-        name = Color('{automagenta}%s{/automagenta}' % name)
-        row = [Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]})]
+        name = '{automagenta}%s{/automagenta}' % name
+        guid = '{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}
 
         if mode == ALL and item['done']:
-            name = Color('{strike}%s{/strike}' % name)
+            name = '{strike}%s{/strike}' % name
+            guid = '{strike}%s{/strike}' % guid
 
-        row.append(name)
+        row.extend([Color(guid), Color(name)])
 
         if extended:
             comments = item['comments']
@@ -54,20 +56,32 @@ def display_shopping_list(guid=None, extended=False, mode=NOT_COMPLETED):
 
 def display_item(guid):
     item = get_item(guid)
-    name = Color('{automagenta}%s{/automagenta}' % item['name'])
-    row = [Color('{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}),
-           name]
+    name = '{automagenta}%s{/automagenta}' % item['name']
+    guid = '{autoblue}%(guid)s{/autoblue}' % {'guid': item['guid'][:8]}
+
+    if item['done']:
+        name = '{strike}%s{/strike}' % name
+        guid = '{strike}%s{/strike}' % guid
+
+    row = [Color(guid),
+           Color(name)]
 
     if item['comments']:
-        row.append(item['comments'])
+        comments = item['comments']
+
+        if item['done']:
+            comments = '{strike}%s{/strike}' % comments
+
+        row.append(Color(comments))
     print_table([row])
 
 def display_all_shopping_lists():
     shopping_lists = get_all_shopping_lists()
     data = []
     for shopping_list in shopping_lists:
+        name = Color('{automagenta}%s{/automagenta}' % shopping_list['name'])
         data.append([Color('{autoblue}%(guid)s{/autoblue}' % {'guid': shopping_list['guid'][:8]}),
-                     shopping_list['name']])
+                     name])
 
     print_table(data, title='All Lists')
 
