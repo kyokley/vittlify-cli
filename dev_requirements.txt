@@ -1,3 +1,5 @@
 -r requirements.txt
 bpython
 pdbpp
+mock
+nose

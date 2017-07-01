@@ -25,6 +25,32 @@ def print_table(data, title=None):
     else:
         print(Color("{autored}No data found.{/autored}"))
 
+def format_row(item, include_comments=False):
+    row = []
+
+    guid = '{autoblue}%s{/autoblue}' % item['guid'][:8]
+    name = item['name']
+
+    if item.get('comments'):
+        name = '{automagenta}+ %s{/automagenta}' % name
+    else:
+        name = '{automagenta}  %s{/automagenta}' % name
+
+    if item.get('done'):
+        guid = '{strike}%s{/strike}' % guid
+        name = '{strike}%s{/strike}' % name
+
+    row.extend([Color(guid), Color(name)])
+
+    if include_comments:
+        comments = item.get('comments')
+
+        if item.get('done'):
+            comments = '{strike}%s{/strike}' % comments
+
+        row.append(Color(comments))
+    return row
+
 def get_encoded_signature(message):
     signature = rsaObj.sign(message,
                             padding.PSS(mgf=padding.MGF1(hashes.SHA512()),
