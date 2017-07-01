@@ -18,7 +18,6 @@ from utils import print_table, format_row
 
 def display_shopping_list(guid=None, extended=False, mode=NOT_COMPLETED):
     data = []
-    name = ''
 
     if mode == NOT_COMPLETED:
         shopping_list = get_shopping_list_info(guid)

@@ -31,8 +31,9 @@ def format_row(item, include_comments=False):
 
     guid = '{autoblue}%s{/autoblue}' % item['guid'][:8]
     name = item['name']
+    comments = item.get('comments')
 
-    if item.get('comments'):
+    if comments:
         name = '{automagenta}+ %s{/automagenta}' % name
     else:
         name = '{automagenta}  %s{/automagenta}' % name
@@ -43,9 +44,7 @@ def format_row(item, include_comments=False):
 
     row.extend([Color(guid), Color(name)])
 
-    if include_comments:
-        comments = item.get('comments')
-
+    if include_comments and comments:
         if item.get('done'):
             comments = '{strike}%s{/strike}' % comments
 
