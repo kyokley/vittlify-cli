@@ -10,6 +10,7 @@ from vt.vt import (display_shopping_list,
                    ALL,
                    show,
                    complete,
+                   modify,
                    )
 
 class TestDisplayShoppingList(unittest.TestCase):
@@ -311,3 +312,30 @@ class TestComplete(unittest.TestCase):
         self.mock_complete_item.assert_called_once_with('test_guid',
                                                         uncomplete=True)
         self.mock_Color.assert_called_once_with('Marked {automagenta}test_name{/automagenta} undone.')
+
+class TestModify(unittest.TestCase):
+    def setUp(self):
+        self.modify_item_patcher = mock.patch('vt.vt.modify_item')
+        self.mock_modify_item = self.modify_item_patcher.start()
+
+        self.display_item_patcher = mock.patch('vt.vt.display_item')
+        self.mock_display_item = self.display_item_patcher.start()
+
+    def tearDown(self):
+        self.modify_item_patcher.stop()
+        self.display_item_patcher.stop()
+
+    def test_(self):
+        args = shlex.split("test_guid this is a comment")
+        modify(args)
+        self.mock_modify_item.assert_called_once_with('test_guid',
+                                                      'this is a comment')
+        self.mock_display_item.assert_called_once_with('test_guid')
+
+class TestAdd(unittest.TestCase):
+    def setUp(self):
+        self.add_item_patcher = mock.patch('vt.vt.add_item')
+        self.mock_add_item = self.add_item_patcher.start()
+
+    def tearDown(self):
+        self.add_item_patcher.stop()
