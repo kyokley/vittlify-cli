@@ -1,4 +1,5 @@
 import sys
+import requests
 
 from colorclass import Color
 from vittlify_request import (VittlifyError,
@@ -9,6 +10,7 @@ from vittlify_request import (VittlifyError,
                               get_item,
                               get_completed,
                               complete_item,
+                              VITTLIFY_URL,
                               )
 from utils import print_table, format_row
 
@@ -99,12 +101,15 @@ def complete(args, uncomplete=False):
         print Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name'])
 
 def main():
-    if sys.argv[1].lower() == 'show':
-        show(sys.argv[2:])
-    elif sys.argv[1].lower() in ('done', 'complete'):
-        complete(sys.argv[2:])
-    elif sys.argv[1].lower() in ('undone', 'uncomplete'):
-        complete(sys.argv[2:], uncomplete=True)
+    try:
+        if sys.argv[1].lower() == 'show':
+            show(sys.argv[2:])
+        elif sys.argv[1].lower() in ('done', 'complete'):
+            complete(sys.argv[2:])
+        elif sys.argv[1].lower() in ('undone', 'uncomplete'):
+            complete(sys.argv[2:], uncomplete=True)
+    except requests.exceptions.ConnectionError:
+        print(Color('{autored}Unable to connect to Vittlify instance at %s{/autored}' % VITTLIFY_URL))
 
 if __name__ == '__main__':
     main()
