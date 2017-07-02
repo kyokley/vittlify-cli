@@ -4,6 +4,11 @@ from vt.vittlify_request import (_send_request,
                                  VittlifyError,
                                  get_all_shopping_lists,
                                  get_shopping_list_info,
+                                 get_shopping_list_items,
+                                 get_all_shopping_list_items,
+                                 get_completed,
+                                 get_item,
+                                 complete_item,
                                  )
 
 class TestSendRequest(unittest.TestCase):
@@ -109,3 +114,121 @@ class TestGetShoppingListInfo(unittest.TestCase):
         self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'list',
                                                                'username': 'USERNAME',
                                                                'guid': 'test_guid'})
+
+class TestGetShoppingListItems(unittest.TestCase):
+    def setUp(self):
+        self.USERNAME_patcher = mock.patch('vt.vittlify_request.USERNAME', 'USERNAME')
+        self.USERNAME_patcher.start()
+
+        self._send_request_patcher = mock.patch('vt.vittlify_request._send_request')
+        self.mock_send_request = self._send_request_patcher.start()
+
+    def tearDown(self):
+        self.USERNAME_patcher.stop()
+        self._send_request_patcher.stop()
+
+    def test_(self):
+        test_guid = 'test_guid'
+        expected = self.mock_send_request.return_value
+        actual = get_shopping_list_items(test_guid)
+
+        self.assertEqual(expected, actual)
+        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'list items',
+                                                               'username': 'USERNAME',
+                                                               'guid': 'test_guid'})
+
+class TestGetAllShoppingListItems(unittest.TestCase):
+    def setUp(self):
+        self.USERNAME_patcher = mock.patch('vt.vittlify_request.USERNAME', 'USERNAME')
+        self.USERNAME_patcher.start()
+
+        self._send_request_patcher = mock.patch('vt.vittlify_request._send_request')
+        self.mock_send_request = self._send_request_patcher.start()
+
+    def tearDown(self):
+        self.USERNAME_patcher.stop()
+        self._send_request_patcher.stop()
+
+    def test_(self):
+        test_guid = 'test_guid'
+        expected = self.mock_send_request.return_value
+        actual = get_all_shopping_list_items(test_guid)
+
+        self.assertEqual(expected, actual)
+        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'list all items',
+                                                               'username': 'USERNAME',
+                                                               'guid': 'test_guid'})
+
+class TestGetCompleted(unittest.TestCase):
+    def setUp(self):
+        self.USERNAME_patcher = mock.patch('vt.vittlify_request.USERNAME', 'USERNAME')
+        self.USERNAME_patcher.start()
+
+        self._send_request_patcher = mock.patch('vt.vittlify_request._send_request')
+        self.mock_send_request = self._send_request_patcher.start()
+
+    def tearDown(self):
+        self.USERNAME_patcher.stop()
+        self._send_request_patcher.stop()
+
+    def test_(self):
+        expected = self.mock_send_request.return_value
+        actual = get_completed()
+
+        self.assertEqual(expected, actual)
+        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'completed',
+                                                               'username': 'USERNAME'})
+
+class TestGetItem(unittest.TestCase):
+    def setUp(self):
+        self.USERNAME_patcher = mock.patch('vt.vittlify_request.USERNAME', 'USERNAME')
+        self.USERNAME_patcher.start()
+
+        self._send_request_patcher = mock.patch('vt.vittlify_request._send_request')
+        self.mock_send_request = self._send_request_patcher.start()
+
+    def tearDown(self):
+        self.USERNAME_patcher.stop()
+        self._send_request_patcher.stop()
+
+    def test_(self):
+        test_guid = 'test_guid'
+        expected = self.mock_send_request.return_value
+        actual = get_item(test_guid)
+
+        self.assertEqual(expected, actual)
+        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'item',
+                                                               'username': 'USERNAME',
+                                                               'guid': test_guid})
+
+class TestCompleteItem(unittest.TestCase):
+    def setUp(self):
+        self.USERNAME_patcher = mock.patch('vt.vittlify_request.USERNAME', 'USERNAME')
+        self.USERNAME_patcher.start()
+
+        self._send_request_patcher = mock.patch('vt.vittlify_request._send_request')
+        self.mock_send_request = self._send_request_patcher.start()
+
+    def tearDown(self):
+        self.USERNAME_patcher.stop()
+        self._send_request_patcher.stop()
+
+    def test_complete(self):
+        test_guid = 'test_guid'
+        expected = self.mock_send_request.return_value
+        actual = complete_item(test_guid)
+
+        self.assertEqual(expected, actual)
+        self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'complete',
+                                                               'username': 'USERNAME',
+                                                               'guid': test_guid})
+
+    def test_uncomplete(self):
+        test_guid = 'test_guid'
+        expected = self.mock_send_request.return_value
+        actual = complete_item(test_guid, uncomplete=True)
+
+        self.assertEqual(expected, actual)
+        self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'uncomplete',
+                                                               'username': 'USERNAME',
+                                                               'guid': test_guid})
