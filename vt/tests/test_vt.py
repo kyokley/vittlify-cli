@@ -2,6 +2,8 @@ import unittest
 import mock
 
 from vt.vt import (display_shopping_list,
+                   display_item,
+                   display_all_shopping_lists,
                    COMPLETED,
                    NOT_COMPLETED,
                    ALL,
@@ -128,3 +130,62 @@ class TestDisplayShoppingList(unittest.TestCase):
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
                                                        'formatted_row_3'], title='Recently Completed')
+
+class TestDisplayItem(unittest.TestCase):
+    def setUp(self):
+        self.get_item_patcher = mock.patch('vt.vt.get_item')
+        self.mock_get_item = self.get_item_patcher.start()
+
+        self.format_row_patcher = mock.patch('vt.vt.format_row')
+        self.mock_format_row = self.format_row_patcher.start()
+
+        self.print_table_patcher = mock.patch('vt.vt.print_table')
+        self.mock_print_table = self.print_table_patcher.start()
+
+        self.test_guid = 'test_guid'
+
+    def tearDown(self):
+        self.get_item_patcher.stop()
+        self.format_row_patcher.stop()
+        self.print_table_patcher.stop()
+
+    def test_(self):
+        display_item(self.test_guid)
+        self.mock_get_item.assert_called_once_with(self.test_guid)
+        self.mock_format_row.assert_called_once_with(self.mock_get_item.return_value, include_comments=True)
+        self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
+
+class TestDisplayAllShoppingLists(unittest.TestCase):
+    def setUp(self):
+        self.get_all_shopping_lists_patcher = mock.patch('vt.vt.get_all_shopping_lists')
+        self.mock_get_all_shopping_lists = self.get_all_shopping_lists_patcher.start()
+
+        self.format_row_patcher = mock.patch('vt.vt.format_row')
+        self.mock_format_row = self.format_row_patcher.start()
+
+        self.print_table_patcher = mock.patch('vt.vt.print_table')
+        self.mock_print_table = self.print_table_patcher.start()
+
+        self.mock_get_all_shopping_lists.return_value = [{'name': 'list1'},
+                                                         {'name': 'list2'},
+                                                         {'name': 'list3'},]
+
+        self.mock_format_row.side_effect = ['formatted_row_1',
+                                            'formatted_row_2',
+                                            'formatted_row_3']
+
+    def tearDown(self):
+        self.get_all_shopping_lists_patcher.stop()
+        self.format_row_patcher.stop()
+
+    def test_(self):
+        display_all_shopping_lists()
+        self.mock_get_all_shopping_lists.assert_called_once_with()
+        self.mock_format_row.assert_has_calls([mock.call({'name': 'list1'}),
+                                               mock.call({'name': 'list2'}),
+                                               mock.call({'name': 'list3'}),])
+        self.mock_print_table.assert_called_once_with(['formatted_row_1',
+                                                       'formatted_row_2',
+                                                       'formatted_row_3'],
+                                                      title='All Lists')
+

@@ -46,9 +46,7 @@ def display_all_shopping_lists():
     shopping_lists = get_all_shopping_lists()
     data = []
     for shopping_list in shopping_lists:
-        name = Color('{automagenta}%s{/automagenta}' % shopping_list['name'])
-        data.append([Color('{autoblue}%(guid)s{/autoblue}' % {'guid': shopping_list['guid'][:8]}),
-                     name])
+        data.append(format_row(shopping_list))
 
     print_table(data, title='All Lists')
 
