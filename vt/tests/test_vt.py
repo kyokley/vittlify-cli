@@ -1,3 +1,4 @@
+import shlex
 import unittest
 import mock
 
@@ -7,6 +8,8 @@ from vt.vt import (display_shopping_list,
                    COMPLETED,
                    NOT_COMPLETED,
                    ALL,
+                   show,
+                   complete,
                    )
 
 class TestDisplayShoppingList(unittest.TestCase):
@@ -194,5 +197,117 @@ class TestShow(unittest.TestCase):
         self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
         self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
 
+        self.display_all_shopping_lists_patcher = mock.patch('vt.vt.display_all_shopping_lists')
+        self.mock_display_all_shopping_lists = self.display_all_shopping_lists_patcher.start()
+
+        self.display_item_patcher = mock.patch('vt.vt.display_item')
+        self.mock_display_item = self.display_item_patcher.start()
+
     def tearDown(self):
         self.display_shopping_list_patcher.stop()
+        self.display_all_shopping_lists_patcher.stop()
+        self.display_item_patcher.stop()
+
+    def test_list_empty_guid(self):
+        args = shlex.split("list ''")
+        self.assertRaises(IndexError,
+                          show,
+                          args)
+
+    def test_list_no_guid(self):
+        args = shlex.split("list")
+        self.assertRaises(IndexError,
+                          show,
+                          args)
+
+    def test_list_no_extended(self):
+        args = shlex.split("list test_guid")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(guid='test_guid')
+
+    def test_list_extended(self):
+        args = shlex.split("list test_guid extended")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(guid='test_guid',
+                                                                extended=True,
+                                                                mode=ALL)
+
+    def test_lists(self):
+        args = shlex.split("lists")
+        show(args)
+
+        self.mock_display_all_shopping_lists.assert_called_once_with()
+
+    def test_item_no_guid(self):
+        args = shlex.split("item")
+        self.assertRaises(IndexError,
+                          show,
+                          args)
+
+    def test_item_empty_guid(self):
+        args = shlex.split("item ''")
+        self.assertRaises(IndexError,
+                          show,
+                          args)
+
+    def test_item(self):
+        args = shlex.split("item test_guid")
+        show(args)
+
+        self.mock_display_item.assert_called_once_with('test_guid')
+
+    def test_done_no_extended(self):
+        args = shlex.split("done test_guid")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
+
+    def test_done_extended(self):
+        args = shlex.split("done test_guid extended")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
+
+    def test_completed_no_extended(self):
+        args = shlex.split("completed test_guid")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
+
+    def test_completed_extended(self):
+        args = shlex.split("completed test_guid extended")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
+
+class TestComplete(unittest.TestCase):
+    def setUp(self):
+        self.complete_item_patcher = mock.patch('vt.vt.complete_item')
+        self.mock_complete_item = self.complete_item_patcher.start()
+
+        self.Color_patcher = mock.patch('vt.vt.Color')
+        self.mock_Color = self.Color_patcher.start()
+
+        self.mock_complete_item.return_value = {'name': 'test_name'}
+
+    def tearDown(self):
+        self.complete_item_patcher.stop()
+        self.Color_patcher.stop()
+
+    def test_complete(self):
+        args = shlex.split("test_guid")
+        complete(args)
+
+        self.mock_complete_item.assert_called_once_with('test_guid',
+                                                        uncomplete=False)
+        self.mock_Color.assert_called_once_with('Marked {strike}{automagenta}test_name{/automagenta}{/strike} as done.')
+
+    def test_uncomplete(self):
+        args = shlex.split("test_guid")
+        complete(args, uncomplete=True)
+
+        self.mock_complete_item.assert_called_once_with('test_guid',
+                                                        uncomplete=True)
+        self.mock_Color.assert_called_once_with('Marked {automagenta}test_name{/automagenta} undone.')

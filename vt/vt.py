@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import requests
 import os
@@ -64,7 +65,7 @@ def show(args):
         guid = options.pop(0)
 
         if not guid:
-            raise ValueError('Incorrect number of arguments')
+            raise IndexError('Incorrect number of arguments')
 
         try:
             if 'extended' in options:
@@ -83,7 +84,7 @@ def show(args):
         guid = options.pop(0)
 
         if not guid:
-            raise ValueError('Incorrect number of arguments')
+            raise IndexError('Incorrect number of arguments')
 
         try:
             display_item(guid)
@@ -100,9 +101,9 @@ def complete(args, uncomplete=False):
     resp = complete_item(guid, uncomplete=uncomplete)
 
     if not uncomplete:
-        print Color('Marked {strike}{automagenta}%s{/automagenta}{/strike} as done.' % resp['name'])
+        print(Color('Marked {strike}{automagenta}%s{/automagenta}{/strike} as done.' % resp['name']))
     else:
-        print Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name'])
+        print(Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name']))
 
 def modify(args):
     guid = args.pop(0).lower()
