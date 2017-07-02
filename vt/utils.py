@@ -9,13 +9,6 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from colorclass import Color
 from terminaltables import AsciiTable
 
-PRIVATE_KEY_FILENAME = os.environ.get('VT_PRIVATE_KEY') or os.path.expanduser('~/.ssh/id_rsa')
-
-with open(PRIVATE_KEY_FILENAME, 'rb') as f:
-    PRIVATE_KEY = f.read()
-
-rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend())
-
 def print_table(data, title=None):
     if data:
         table = AsciiTable(data)
@@ -52,6 +45,13 @@ def format_row(item, include_comments=False):
     return row
 
 def get_encoded_signature(message):
+    PRIVATE_KEY_FILENAME = os.environ.get('VT_PRIVATE_KEY') or os.path.expanduser('~/.ssh/id_rsa')
+
+    with open(PRIVATE_KEY_FILENAME, 'rb') as f:
+        PRIVATE_KEY = f.read()
+
+    rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend())
+
     signature = rsaObj.sign(message,
                             padding.PSS(mgf=padding.MGF1(hashes.SHA512()),
                                         salt_length=padding.PSS.MAX_LENGTH),
