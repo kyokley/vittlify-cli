@@ -23,6 +23,9 @@ def _send_request(method, data):
     elif method.lower() == 'put':
         resp = requests.put(VITTLIFY_URL + 'vt/',
                             json=payload)
+    elif method.lower() == 'post':
+        resp = requests.post(VITTLIFY_URL + 'vt/',
+                             json=payload)
 
     if resp.status_code in (404, 409):
         raise VittlifyError(resp.json())
@@ -70,3 +73,18 @@ def complete_item(guid, uncomplete=False):
             'guid': guid,
             'username': USERNAME}
     return _send_request('PUT', data)
+
+def modify_item(guid, comments):
+    data = {'endpoint': 'modify',
+            'guid': guid,
+            'username': USERNAME,
+            'comments': comments}
+    return _send_request('PUT', data)
+
+def add_item(guid, name, comments=''):
+    data = {'endpoint': 'add item',
+            'username': USERNAME,
+            'guid': guid,
+            'name': name,
+            'comments': comments}
+    return _send_request('POST', data)

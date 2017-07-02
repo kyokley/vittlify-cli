@@ -39,7 +39,7 @@ def format_row(item, include_comments=False):
 
     if include_comments and comments:
         if item.get('done'):
-            comments = '{strike}%s{/strike}' % comments
+            comments = Color('{strike}%s{/strike}' % comments)
 
         row.append(comments)
     return row

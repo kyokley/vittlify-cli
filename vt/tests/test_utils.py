@@ -82,19 +82,20 @@ class TestFormatRow(unittest.TestCase):
                                           mock.call('{strike}{automagenta}+ test_name{/automagenta}{/strike}')])
 
     def test_item_with_comments_include_comments_done(self):
-        self.mock_Color.side_effect = ['guid_Color', 'name_Color']
+        self.mock_Color.side_effect = ['guid_Color', 'name_Color', 'comments_Color']
 
         item = {'guid': 'asdf',
                 'name': 'test_name',
                 'comments': 'test_comments',
                 'done': True}
 
-        expected = ['guid_Color', 'name_Color', '{strike}test_comments{/strike}']
+        expected = ['guid_Color', 'name_Color', 'comments_Color']
         actual = format_row(item, include_comments=True)
 
         self.assertEqual(expected, actual)
         self.mock_Color.assert_has_calls([mock.call('{strike}{autoblue}asdf{/autoblue}{/strike}'),
-                                          mock.call('{strike}{automagenta}+ test_name{/automagenta}{/strike}')])
+                                          mock.call('{strike}{automagenta}+ test_name{/automagenta}{/strike}'),
+                                          mock.call('{strike}test_comments{/strike}')])
 
 class TestPrintTable(unittest.TestCase):
     def setUp(self):

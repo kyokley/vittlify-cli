@@ -1,5 +1,6 @@
 import sys
 import requests
+import os
 
 from colorclass import Color
 from vittlify_request import (VittlifyError,
@@ -10,9 +11,14 @@ from vittlify_request import (VittlifyError,
                               get_item,
                               get_completed,
                               complete_item,
+                              modify_item,
+                              add_item,
                               VITTLIFY_URL,
                               )
 from utils import print_table, format_row
+
+SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
+DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
 
 (COMPLETED,
  NOT_COMPLETED,
@@ -98,16 +104,51 @@ def complete(args, uncomplete=False):
     else:
         print Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name'])
 
+def modify(args):
+    guid = args.pop(0).lower()
+    comments = ' '.join(args)
+    modify_item(guid, comments)
+    display_item(guid)
+
+def add(args):
+    if len(args) == 1:
+        if DEFAULT_LIST:
+            guid = DEFAULT_LIST
+        else:
+            raise IndexError
+    else:
+        guid = args.pop(0).lower()
+    name = args.pop(0)
+
+    item = add_item(guid, name)
+    print_table([format_row(item)])
+
 def main():
     try:
         if sys.argv[1].lower() == 'show':
             show(sys.argv[2:])
+        elif sys.argv[1].lower() in ('list', 'lists', 'item'):
+            show(sys.argv[1:])
         elif sys.argv[1].lower() in ('done', 'complete'):
             complete(sys.argv[2:])
         elif sys.argv[1].lower() in ('undone', 'uncomplete'):
             complete(sys.argv[2:], uncomplete=True)
+        elif sys.argv[1].lower() in ('modify', 'edit', 'comment', 'comments'):
+            modify(sys.argv[2:])
+        elif sys.argv[1].lower() in ('add',):
+            add(sys.argv[2:])
+    except IndexError:
+        print(Color('{autored}Incorrect number of arguments provided{/autored}'))
+        if SHOW_TRACEBACK:
+            raise
     except requests.exceptions.ConnectionError:
         print(Color('{autored}Unable to connect to Vittlify instance at %s{/autored}' % VITTLIFY_URL))
+        if SHOW_TRACEBACK:
+            raise
+    except requests.exceptions.HTTPError as e:
+        print(Color('{autored}Server responded with %s{/autored}' % e.message))
+        if SHOW_TRACEBACK:
+            raise
 
 if __name__ == '__main__':
     main()

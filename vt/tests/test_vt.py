@@ -189,3 +189,10 @@ class TestDisplayAllShoppingLists(unittest.TestCase):
                                                        'formatted_row_3'],
                                                       title='All Lists')
 
+class TestShow(unittest.TestCase):
+    def setUp(self):
+        self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
+        self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
+
+    def tearDown(self):
+        self.display_shopping_list_patcher.stop()
