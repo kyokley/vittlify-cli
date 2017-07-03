@@ -11,6 +11,7 @@ from vt.vt import (display_shopping_list,
                    show,
                    complete,
                    modify,
+                   add,
                    )
 
 class TestDisplayShoppingList(unittest.TestCase):
@@ -332,10 +333,69 @@ class TestModify(unittest.TestCase):
                                                       'this is a comment')
         self.mock_display_item.assert_called_once_with('test_guid')
 
-class TestAdd(unittest.TestCase):
+class TestAddDefaultList(unittest.TestCase):
     def setUp(self):
+        self.DEFAULT_LIST_patcher = mock.patch('vt.vt.DEFAULT_LIST', 'default_list')
+        self.DEFAULT_LIST_patcher.start()
+
         self.add_item_patcher = mock.patch('vt.vt.add_item')
         self.mock_add_item = self.add_item_patcher.start()
 
+        self.format_row_patcher = mock.patch('vt.vt.format_row')
+        self.mock_format_row = self.format_row_patcher.start()
+
+        self.print_table_patcher = mock.patch('vt.vt.print_table')
+        self.mock_print_table = self.print_table_patcher.start()
+
     def tearDown(self):
         self.add_item_patcher.stop()
+        self.DEFAULT_LIST_patcher.stop()
+        self.format_row_patcher.stop()
+        self.print_table_patcher.stop()
+
+    def test_no_guid(self):
+        args = shlex.split("'this is a new item'")
+        add(args)
+        self.mock_add_item.assert_called_once_with('default_list', 'this is a new item')
+        self.mock_format_row.assert_called_once_with(self.mock_add_item.return_value)
+        self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
+
+    def test_with_guid(self):
+        args = shlex.split("test_guid 'this is a new item'")
+        add(args)
+        self.mock_add_item.assert_called_once_with('test_guid', 'this is a new item')
+        self.mock_format_row.assert_called_once_with(self.mock_add_item.return_value)
+        self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
+
+class TestAddNoDefaultList(unittest.TestCase):
+    def setUp(self):
+        self.DEFAULT_LIST_patcher = mock.patch('vt.vt.DEFAULT_LIST', None)
+        self.DEFAULT_LIST_patcher.start()
+
+        self.add_item_patcher = mock.patch('vt.vt.add_item')
+        self.mock_add_item = self.add_item_patcher.start()
+
+        self.format_row_patcher = mock.patch('vt.vt.format_row')
+        self.mock_format_row = self.format_row_patcher.start()
+
+        self.print_table_patcher = mock.patch('vt.vt.print_table')
+        self.mock_print_table = self.print_table_patcher.start()
+
+    def tearDown(self):
+        self.add_item_patcher.stop()
+        self.DEFAULT_LIST_patcher.stop()
+        self.format_row_patcher.stop()
+        self.print_table_patcher.stop()
+
+    def test_no_guid(self):
+        args = shlex.split("'this is a new item'")
+        self.assertRaises(IndexError,
+                          add,
+                          args)
+
+    def test_with_guid(self):
+        args = shlex.split("test_guid 'this is a new item'")
+        add(args)
+        self.mock_add_item.assert_called_once_with('test_guid', 'this is a new item')
+        self.mock_format_row.assert_called_once_with(self.mock_add_item.return_value)
+        self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
