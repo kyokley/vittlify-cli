@@ -4,7 +4,7 @@ import requests
 import os
 
 from colorclass import Color
-from vittlify_request import (VittlifyError,
+from .vittlify_request import (VittlifyError,
                               get_all_shopping_lists,
                               get_shopping_list_info,
                               get_shopping_list_items,
@@ -16,7 +16,7 @@ from vittlify_request import (VittlifyError,
                               add_item,
                               VITTLIFY_URL,
                               )
-from utils import print_table, format_row
+from .utils import print_table, format_row
 
 SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
 DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
