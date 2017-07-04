@@ -62,7 +62,10 @@ def show(args):
     options = args
 
     if cmd == 'list':
-        guid = options.pop(0)
+        if options:
+            guid = options.pop(0)
+        else:
+            guid = DEFAULT_LIST
 
         if not guid:
             raise IndexError('Incorrect number of arguments')
