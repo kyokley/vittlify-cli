@@ -194,8 +194,11 @@ class TestDisplayAllShoppingLists(unittest.TestCase):
                                                        'formatted_row_3'],
                                                       title='All Lists')
 
-class TestShow(unittest.TestCase):
+class TestShowNoDefaultList(unittest.TestCase):
     def setUp(self):
+        self.DEFAULT_LIST_patcher = mock.patch('vt.vt.DEFAULT_LIST', '')
+        self.DEFAULT_LIST_patcher.start()
+
         self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
         self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
 
@@ -206,6 +209,7 @@ class TestShow(unittest.TestCase):
         self.mock_display_item = self.display_item_patcher.start()
 
     def tearDown(self):
+        self.DEFAULT_LIST_patcher.stop()
         self.display_shopping_list_patcher.stop()
         self.display_all_shopping_lists_patcher.stop()
         self.display_item_patcher.stop()
@@ -222,6 +226,18 @@ class TestShow(unittest.TestCase):
                           show,
                           args)
 
+    def test_list_empty_guid_extended(self):
+        args = shlex.split("list '' -e")
+        self.assertRaises(IndexError,
+                          show,
+                          args)
+
+    def test_list_no_guid_extended(self):
+        args = shlex.split("list -e")
+        self.assertRaises(IndexError,
+                          show,
+                          args)
+
     def test_list_no_extended(self):
         args = shlex.split("list test_guid")
         show(args)
@@ -229,7 +245,7 @@ class TestShow(unittest.TestCase):
         self.mock_display_shopping_list.assert_called_once_with(guid='test_guid')
 
     def test_list_extended(self):
-        args = shlex.split("list test_guid extended")
+        args = shlex.split("list test_guid -e")
         show(args)
 
         self.mock_display_shopping_list.assert_called_once_with(guid='test_guid',
@@ -267,7 +283,7 @@ class TestShow(unittest.TestCase):
         self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
 
     def test_done_extended(self):
-        args = shlex.split("done test_guid extended")
+        args = shlex.split("done test_guid -e")
         show(args)
 
         self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
@@ -279,7 +295,113 @@ class TestShow(unittest.TestCase):
         self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
 
     def test_completed_extended(self):
-        args = shlex.split("completed test_guid extended")
+        args = shlex.split("completed test_guid -e")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
+
+class TestShowDefaultList(unittest.TestCase):
+    def setUp(self):
+        self.DEFAULT_LIST_patcher = mock.patch('vt.vt.DEFAULT_LIST', 'default_list')
+        self.DEFAULT_LIST_patcher.start()
+
+        self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
+        self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
+
+        self.display_all_shopping_lists_patcher = mock.patch('vt.vt.display_all_shopping_lists')
+        self.mock_display_all_shopping_lists = self.display_all_shopping_lists_patcher.start()
+
+        self.display_item_patcher = mock.patch('vt.vt.display_item')
+        self.mock_display_item = self.display_item_patcher.start()
+
+    def tearDown(self):
+        self.DEFAULT_LIST_patcher.stop()
+        self.display_shopping_list_patcher.stop()
+        self.display_all_shopping_lists_patcher.stop()
+        self.display_item_patcher.stop()
+
+    def test_list_empty_guid(self):
+        args = shlex.split("list ''")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(guid='default_list')
+
+    def test_list_no_guid(self):
+        args = shlex.split("list")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(guid='default_list')
+
+    def test_list_empty_guid_extended(self):
+        args = shlex.split("list '' -e")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(guid='default_list', extended=True, mode=ALL)
+
+    def test_list_no_guid_extended(self):
+        args = shlex.split("list -e")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(guid='default_list', extended=True, mode=ALL)
+
+    def test_list_no_extended(self):
+        args = shlex.split("list test_guid")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(guid='test_guid')
+
+    def test_list_extended(self):
+        args = shlex.split("list test_guid -e")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(guid='test_guid',
+                                                                extended=True,
+                                                                mode=ALL)
+
+    def test_lists(self):
+        args = shlex.split("lists")
+        show(args)
+
+        self.mock_display_all_shopping_lists.assert_called_once_with()
+
+    def test_item_no_guid(self):
+        args = shlex.split("item")
+        self.assertRaises(IndexError,
+                          show,
+                          args)
+
+    def test_item_empty_guid(self):
+        args = shlex.split("item ''")
+        self.assertRaises(IndexError,
+                          show,
+                          args)
+
+    def test_item(self):
+        args = shlex.split("item test_guid")
+        show(args)
+
+        self.mock_display_item.assert_called_once_with('test_guid')
+
+    def test_done_no_extended(self):
+        args = shlex.split("done test_guid")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
+
+    def test_done_extended(self):
+        args = shlex.split("done test_guid -e")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
+
+    def test_completed_no_extended(self):
+        args = shlex.split("completed test_guid")
+        show(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
+
+    def test_completed_extended(self):
+        args = shlex.split("completed test_guid -e")
         show(args)
 
         self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
