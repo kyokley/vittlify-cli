@@ -12,6 +12,7 @@ from vt.vt import (display_shopping_list,
                    complete,
                    modify,
                    add,
+                   move,
                    )
 
 class TestDisplayShoppingList(unittest.TestCase):
@@ -521,3 +522,21 @@ class TestAddNoDefaultList(unittest.TestCase):
         self.mock_add_item.assert_called_once_with('test_guid', 'this is a new item')
         self.mock_format_row.assert_called_once_with(self.mock_add_item.return_value)
         self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
+
+class TestMove(unittest.TestCase):
+    def setUp(self):
+        self.move_item_patcher = mock.patch('vt.vt.move_item')
+        self.mock_move_item = self.move_item_patcher.start()
+
+        self.Color_patcher = mock.patch('vt.vt.Color')
+        self.mock_Color = self.Color_patcher.start()
+
+    def tearDown(self):
+        self.move_item_patcher.stop()
+        self.Color_patcher.stop()
+
+    def test_(self):
+        args = shlex.split('test_guid to_list_guid')
+        move(args)
+        self.mock_move_item.assert_called_once_with('test_guid', 'to_list_guid')
+        self.mock_Color.assert_called_once_with('Moved item {autoblue}test_guid{/autoblue} to list {autoblue}to_list_guid{/autoblue}')
