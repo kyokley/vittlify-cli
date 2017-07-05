@@ -2,13 +2,10 @@ import os
 import requests
 import json
 
-from .utils import get_encoded_signature
+from .utils import get_encoded_signature, VittlifyError
 
 VITTLIFY_URL = os.environ.get('VT_URL') or 'http://127.0.0.1:8000/vittlify/'
 USERNAME = os.environ.get('VT_USERNAME') or os.environ.get('USER')
-
-class VittlifyError(Exception):
-    pass
 
 def _send_request(method, data):
     message = json.dumps(data)

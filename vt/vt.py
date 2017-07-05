@@ -4,8 +4,7 @@ import requests
 import os
 
 from colorclass import Color
-from .vittlify_request import (VittlifyError,
-                              get_all_shopping_lists,
+from .vittlify_request import (get_all_shopping_lists,
                               get_shopping_list_info,
                               get_shopping_list_items,
                               get_all_shopping_list_items,
@@ -17,7 +16,7 @@ from .vittlify_request import (VittlifyError,
                               move_item,
                               VITTLIFY_URL,
                               )
-from .utils import print_table, format_row
+from .utils import print_table, format_row, VittlifyError
 
 SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
 DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
@@ -170,6 +169,8 @@ def main():
         print(Color('{autored}Server responded with %s{/autored}' % e.message))
         if SHOW_TRACEBACK:
             raise
+    except VittlifyError as e:
+        print(Color('{autored}%s{/autored}' % e))
 
 if __name__ == '__main__':
     main()
