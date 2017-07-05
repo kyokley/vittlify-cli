@@ -14,6 +14,7 @@ from .vittlify_request import (VittlifyError,
                               complete_item,
                               modify_item,
                               add_item,
+                              move_item,
                               VITTLIFY_URL,
                               )
 from .utils import print_table, format_row
@@ -62,16 +63,23 @@ def show(args):
     options = args
 
     if cmd == 'list':
-        if options:
-            guid = options.pop(0)
-        else:
+        guid = None
+
+        for i in range(len(options)):
+            if options[i].startswith('-'):
+                continue
+            else:
+                guid = options[i]
+
+        if not guid:
             guid = DEFAULT_LIST
 
         if not guid:
             raise IndexError('Incorrect number of arguments')
 
         try:
-            if 'extended' in options:
+            if ('--extended' in options or
+                    '-e' in options):
                 display_shopping_list(guid=guid, extended=True, mode=ALL)
             else:
                 display_shopping_list(guid=guid)
@@ -94,7 +102,8 @@ def show(args):
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
     elif cmd in ('done', 'completed'):
-        if 'extended' in options:
+        if ('--extended' in options or
+                '-e' in options):
             display_shopping_list(extended=True, mode=COMPLETED)
         else:
             display_shopping_list(mode=COMPLETED)
@@ -127,6 +136,12 @@ def add(args):
     item = add_item(guid, name)
     print_table([format_row(item)])
 
+def move(args):
+    guid = args.pop(0).lower()
+    to_guid = args.pop(0).lower()
+    move_item(guid, to_guid)
+    print(Color('Moved item {autoblue}%s{/autoblue} to list {autoblue}%s{/autoblue}' % (guid, to_guid)))
+
 def main():
     try:
         if sys.argv[1].lower() == 'show':
@@ -141,6 +156,8 @@ def main():
             modify(sys.argv[2:])
         elif sys.argv[1].lower() in ('add',):
             add(sys.argv[2:])
+        elif sys.argv[1].lower() in ('move', 'mv'):
+            move(sys.argv[2:])
     except IndexError:
         print(Color('{autored}Incorrect number of arguments provided{/autored}'))
         if SHOW_TRACEBACK:

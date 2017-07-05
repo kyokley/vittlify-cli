@@ -88,3 +88,11 @@ def add_item(guid, name, comments=''):
             'name': name,
             'comments': comments}
     return _send_request('POST', data)
+
+def move_item(guid, to_guid):
+    data = {'endpoint': 'move',
+            'username': USERNAME,
+            'guid': guid,
+            'to_list_guid': to_guid,
+            }
+    return _send_request('PUT', data)
