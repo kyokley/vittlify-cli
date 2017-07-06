@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os
 import base64
+import re
 
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.backends import default_backend
@@ -22,6 +23,10 @@ def print_table(data, title=None):
     else:
         print(Color("{autored}No data found.{/autored}"))
 
+def _apply_strikethrough(string):
+    string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)', r'{strike}\1{/strike}', string)
+    return string
+
 def format_row(item, include_comments=False):
     row = []
 
@@ -35,14 +40,14 @@ def format_row(item, include_comments=False):
         name = '{automagenta}  %s{/automagenta}' % name
 
     if item.get('done'):
-        guid = '{strike}%s{/strike}' % guid
-        name = '{strike}%s{/strike}' % name
+        guid = _apply_strikethrough(guid)
+        name = _apply_strikethrough(name)
 
     row.extend([Color(guid), Color(name)])
 
     if include_comments and comments:
         if item.get('done'):
-            comments = Color('{strike}%s{/strike}' % comments)
+            comments = Color(_apply_strikethrough(comments))
 
         row.append(comments)
     return row
@@ -53,7 +58,7 @@ def get_encoded_signature(message):
     try:
         with open(PRIVATE_KEY_FILENAME, 'rb') as f:
             PRIVATE_KEY = f.read()
-    except IOError as e:
+    except IOError:
         raise VittlifyError('Could not find private key at %s' % PRIVATE_KEY_FILENAME)
 
     rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend())
