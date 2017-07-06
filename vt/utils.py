@@ -30,25 +30,26 @@ def _apply_strikethrough(string):
 def format_row(item, include_comments=False):
     row = []
 
-    guid = '{autoblue}%s{/autoblue}' % item['guid'][:8]
-    name = item['name']
     comments = item.get('comments')
 
     if comments:
-        name = '{automagenta}+ %s{/automagenta}' % name
+        name = '+ %s' % item['name']
     else:
-        name = '{automagenta}  %s{/automagenta}' % name
+        name = '  %s' % item['name']
 
     if item.get('done'):
-        guid = _apply_strikethrough(guid)
-        name = _apply_strikethrough(name)
+        guid = '{autoblue}%s{/autoblue}' % _apply_strikethrough(item['guid'][:8])
+        name = '{automagenta}%s{/automagenta}' % _apply_strikethrough(name)
+        if comments:
+            comments = _apply_strikethrough(comments)
+    else:
+        guid = '{autoblue}%s{/autoblue}' % item['guid'][:8]
+        name = '{automagenta}%s{/automagenta}' % name
 
     row.extend([Color(guid), Color(name)])
 
     if include_comments and comments:
-        if item.get('done'):
-            comments = Color(_apply_strikethrough(comments))
-
+        comments = Color(comments)
         row.append(comments)
     return row
 
