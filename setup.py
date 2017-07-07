@@ -33,6 +33,7 @@ setup(
 
     install_requires=[
         'requests',
+        'requests[socks]',
         'terminaltables',
         'cryptography',
         'colorclass',

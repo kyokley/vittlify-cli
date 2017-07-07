@@ -17,7 +17,10 @@ def _get_proxy_dict(proxy):
     if len(split) != 2:
         raise VittlifyError('Improperly formatted proxy')
 
-    proxy_dict[split[0]] = proxy
+    if split[0].lower() == 'socks5':
+        proxy_dict.update({'http': proxy, 'https': proxy})
+    else:
+        proxy_dict[split[0]] = proxy
     return proxy_dict
 
 def _send_request(method, data):
