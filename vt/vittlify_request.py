@@ -8,6 +8,18 @@ VITTLIFY_URL = os.environ.get('VT_URL') or 'http://127.0.0.1:8000/vittlify/'
 USERNAME = os.environ.get('VT_USERNAME') or os.environ.get('USER')
 PROXY = os.environ.get('VT_PROXY')
 
+def _get_proxy_dict(proxy):
+    proxy_dict = {}
+    if not proxy:
+        return None
+
+    split = proxy.split('://')
+    if len(split) != 2:
+        raise VittlifyError('Improperly formatted proxy')
+
+    proxy_dict[split[0]] = proxy
+    return proxy_dict
+
 def _send_request(method, data):
     data['username'] = USERNAME
     message = json.dumps(data)
@@ -19,15 +31,15 @@ def _send_request(method, data):
     if method.lower() == 'get':
         resp = requests.get(VITTLIFY_URL + 'vt/',
                             json=payload,
-                            proxies=PROXY)
+                            proxies=_get_proxy_dict(PROXY))
     elif method.lower() == 'put':
         resp = requests.put(VITTLIFY_URL + 'vt/',
                             json=payload,
-                            proxies=PROXY)
+                            proxies=_get_proxy_dict(PROXY))
     elif method.lower() == 'post':
         resp = requests.post(VITTLIFY_URL + 'vt/',
                              json=payload,
-                             proxies=PROXY)
+                             proxies=_get_proxy_dict(PROXY))
 
     if resp.status_code in (404, 409):
         raise VittlifyError(resp.json())
