@@ -6,8 +6,10 @@ from .utils import get_encoded_signature, VittlifyError
 
 VITTLIFY_URL = os.environ.get('VT_URL') or 'http://127.0.0.1:8000/vittlify/'
 USERNAME = os.environ.get('VT_USERNAME') or os.environ.get('USER')
+PROXY = os.environ.get('VT_PROXY')
 
 def _send_request(method, data):
+    data['username'] = USERNAME
     message = json.dumps(data)
     encoded_sig = get_encoded_signature(message)
 
@@ -16,13 +18,16 @@ def _send_request(method, data):
 
     if method.lower() == 'get':
         resp = requests.get(VITTLIFY_URL + 'vt/',
-                            json=payload)
+                            json=payload,
+                            proxies=PROXY)
     elif method.lower() == 'put':
         resp = requests.put(VITTLIFY_URL + 'vt/',
-                            json=payload)
+                            json=payload,
+                            proxies=PROXY)
     elif method.lower() == 'post':
         resp = requests.post(VITTLIFY_URL + 'vt/',
-                             json=payload)
+                             json=payload,
+                             proxies=PROXY)
 
     if resp.status_code in (404, 409):
         raise VittlifyError(resp.json())
@@ -31,56 +36,53 @@ def _send_request(method, data):
     return resp.json()
 
 def get_all_shopping_lists():
-    data = {'endpoint': 'all lists',
-            'username': USERNAME}
+    data = {'endpoint': 'all lists'}
 
     return _send_request('GET', data)
 
 def get_shopping_list_info(guid):
     data = {'endpoint': 'list',
             'guid': guid,
-            'username': USERNAME}
+            }
     return _send_request('GET', data)
 
 def get_shopping_list_items(guid):
     data = {'endpoint': 'list items',
             'guid': guid,
-            'username': USERNAME}
+            }
     return _send_request('GET', data)
 
 def get_all_shopping_list_items(guid):
     data = {'endpoint': 'list all items',
             'guid': guid,
-            'username': USERNAME}
+            }
     return _send_request('GET', data)
 
 def get_completed():
     data = {'endpoint': 'completed',
-            'username': USERNAME}
+            }
     return _send_request('GET', data)
 
 def get_item(guid):
     data = {'endpoint': 'item',
             'guid': guid,
-            'username': USERNAME}
+            }
     return _send_request('GET', data)
 
 def complete_item(guid, uncomplete=False):
     data = {'endpoint': 'complete' if not uncomplete else 'uncomplete',
             'guid': guid,
-            'username': USERNAME}
+            }
     return _send_request('PUT', data)
 
 def modify_item(guid, comments):
     data = {'endpoint': 'modify',
             'guid': guid,
-            'username': USERNAME,
             'comments': comments}
     return _send_request('PUT', data)
 
 def add_item(guid, name, comments=''):
     data = {'endpoint': 'add item',
-            'username': USERNAME,
             'guid': guid,
             'name': name,
             'comments': comments}
@@ -88,7 +90,6 @@ def add_item(guid, name, comments=''):
 
 def move_item(guid, to_guid):
     data = {'endpoint': 'move',
-            'username': USERNAME,
             'guid': guid,
             'to_list_guid': to_guid,
             }
