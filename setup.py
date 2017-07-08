@@ -33,7 +33,7 @@ setup(
 
     install_requires=[
         'requests',
-        'requests[socks]',
+        'pysocks',
         'terminaltables',
         'cryptography',
         'colorclass',
