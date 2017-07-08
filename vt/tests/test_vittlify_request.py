@@ -40,6 +40,15 @@ class TestGetProxy(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
+    def test_socks5(self):
+        proxy = 'socks5://www.example.com:80'
+
+        expected = {'http': 'socks5://www.example.com:80',
+                    'https': 'socks5://www.example.com:80'}
+        actual = _get_proxy_dict(proxy)
+
+        self.assertEqual(expected, actual)
+
 class TestSendRequest(unittest.TestCase):
     def setUp(self):
         self.PROXY_patcher = mock.patch('vt.vittlify_request.PROXY', 'PROXY')
