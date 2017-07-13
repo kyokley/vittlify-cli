@@ -15,6 +15,7 @@ from .vittlify_request import (get_all_shopping_lists,
                               add_item,
                               move_item,
                               VITTLIFY_URL,
+                              PROXY,
                               )
 from .utils import print_table, format_row, VittlifyError
 
@@ -163,6 +164,8 @@ def main():
             raise
     except requests.exceptions.ConnectionError:
         print(Color('{autored}Unable to connect to Vittlify instance at %s{/autored}' % VITTLIFY_URL))
+        if PROXY:
+            print(Color('{autored}Attempted to use proxy at %s{/autored}' % PROXY))
         if SHOW_TRACEBACK:
             raise
     except requests.exceptions.HTTPError as e:
