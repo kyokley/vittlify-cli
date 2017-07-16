@@ -21,6 +21,7 @@ from .utils import (print_table,
                     format_row,
                     VittlifyError,
                     parse_options,
+                    apply_strikethrough,
                     )
 
 SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
@@ -119,7 +120,7 @@ def complete(args, uncomplete=False):
         resp = complete_item(guid, uncomplete=uncomplete)
 
         if not uncomplete:
-            print(Color('Marked {strike}{automagenta}%s{/automagenta}{/strike} as done.' % resp['name']))
+            print(Color('Marked {automagenta}%s{/automagenta} as done.' % apply_strikethrough(resp['name'])))
         else:
             print(Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name']))
 

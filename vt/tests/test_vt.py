@@ -373,11 +373,16 @@ class TestComplete(unittest.TestCase):
         self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
         self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
 
+        self.apply_strikethrough_patcher = mock.patch('vt.vt.apply_strikethrough')
+        self.mock_apply_strikethrough = self.apply_strikethrough_patcher.start()
+
         self.mock_complete_item.return_value = {'name': 'test_name'}
+        self.mock_apply_strikethrough.return_value = 'struck_through'
 
     def tearDown(self):
         self.complete_item_patcher.stop()
         self.Color_patcher.stop()
+        self.apply_strikethrough_patcher.stop()
 
     def test_complete(self):
         args = shlex.split("test_guid")
@@ -385,7 +390,8 @@ class TestComplete(unittest.TestCase):
 
         self.mock_complete_item.assert_called_once_with('test_guid',
                                                         uncomplete=False)
-        self.mock_Color.assert_called_once_with('Marked {strike}{automagenta}test_name{/automagenta}{/strike} as done.')
+        self.mock_apply_strikethrough.assert_called_once_with('test_name')
+        self.mock_Color.assert_called_once_with('Marked {automagenta}struck_through{/automagenta} as done.')
 
     def test_uncomplete(self):
         args = shlex.split("test_guid")

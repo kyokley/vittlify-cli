@@ -23,7 +23,7 @@ def print_table(data, title=None):
     else:
         print(Color("{autored}No data found.{/autored}"))
 
-def _apply_strikethrough(string):
+def apply_strikethrough(string):
     string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)', r'{strike}\1{/strike}', string)
     return string
 
@@ -38,10 +38,10 @@ def format_row(item, include_comments=False):
         name = '  %s' % item['name']
 
     if item.get('done'):
-        guid = '{autoblue}%s{/autoblue}' % _apply_strikethrough(item['guid'][:8])
-        name = '{automagenta}%s{/automagenta}' % _apply_strikethrough(name)
+        guid = '{autoblue}%s{/autoblue}' % apply_strikethrough(item['guid'][:8])
+        name = '{automagenta}%s{/automagenta}' % apply_strikethrough(name)
         if comments:
-            comments = _apply_strikethrough(comments)
+            comments = apply_strikethrough(comments)
     else:
         guid = '{autoblue}%s{/autoblue}' % item['guid'][:8]
         name = '{automagenta}%s{/automagenta}' % name
