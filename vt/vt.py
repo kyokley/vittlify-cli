@@ -17,7 +17,11 @@ from .vittlify_request import (get_all_shopping_lists,
                               VITTLIFY_URL,
                               PROXY,
                               )
-from .utils import print_table, format_row, VittlifyError
+from .utils import (print_table,
+                    format_row,
+                    VittlifyError,
+                    parse_options,
+                    )
 
 SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
 DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
@@ -26,7 +30,7 @@ DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
  NOT_COMPLETED,
  ALL) = range(3)
 
-def display_shopping_list(guid=None, extended=False, mode=NOT_COMPLETED):
+def display_shopping_list(guid=None, extended=False, mode=ALL):
     data = []
 
     if mode == NOT_COMPLETED:
@@ -60,16 +64,17 @@ def display_all_shopping_lists():
 
 def show(args):
     cmd = args.pop(0).lower()
-    options = args
+    raw_options = args
+    options = parse_options(raw_options)
 
     if cmd == 'list':
         guid = None
 
-        for i in range(len(options)):
-            if options[i].startswith('-'):
+        for i in range(len(raw_options)):
+            if raw_options[i].startswith('-'):
                 continue
             else:
-                guid = options[i]
+                guid = raw_options[i]
 
         if not guid:
             guid = DEFAULT_LIST
@@ -78,11 +83,7 @@ def show(args):
             raise IndexError('Incorrect number of arguments')
 
         try:
-            if ('--extended' in options or
-                    '-e' in options):
-                display_shopping_list(guid=guid, extended=True, mode=ALL)
-            else:
-                display_shopping_list(guid=guid)
+            display_shopping_list(guid=guid, **options)
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
 
@@ -92,7 +93,7 @@ def show(args):
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
     elif cmd in ('show', 'item'):
-        guid = options.pop(0)
+        guid = raw_options.pop(0)
 
         if not guid:
             raise IndexError('Incorrect number of arguments')
@@ -101,21 +102,26 @@ def show(args):
             display_item(guid)
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
-    elif cmd in ('done', 'completed'):
-        if ('--extended' in options or
-                '-e' in options):
-            display_shopping_list(extended=True, mode=COMPLETED)
-        else:
-            display_shopping_list(mode=COMPLETED)
 
 def complete(args, uncomplete=False):
-    guid = args.pop(0)
-    resp = complete_item(guid, uncomplete=uncomplete)
+    raw_options = args
+    options = parse_options(raw_options)
 
-    if not uncomplete:
-        print(Color('Marked {strike}{automagenta}%s{/automagenta}{/strike} as done.' % resp['name']))
+    arg_count = 0
+    for val in args:
+        if not val.strip().startswith('-'):
+            arg_count += 1
+
+    if not arg_count:
+        display_shopping_list(mode=COMPLETED, **options)
     else:
-        print(Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name']))
+        guid = args.pop(0)
+        resp = complete_item(guid, uncomplete=uncomplete)
+
+        if not uncomplete:
+            print(Color('Marked {strike}{automagenta}%s{/automagenta}{/strike} as done.' % resp['name']))
+        else:
+            print(Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name']))
 
 def modify(args):
     guid = args.pop(0).lower()

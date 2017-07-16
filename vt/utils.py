@@ -70,3 +70,14 @@ def get_encoded_signature(message):
                             hashes.SHA512())
     return base64.b64encode(signature)
 
+def parse_options(raw_options):
+    options = {}
+    if ('--extended' in raw_options or
+            '-e' in raw_options):
+        options['extended'] = True
+
+    if ('--quiet' in raw_options or
+            '-q' in raw_options):
+        options['quiet'] = True
+
+    return options
