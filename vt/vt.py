@@ -91,7 +91,7 @@ def show(args):
             display_all_shopping_lists()
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
-    elif cmd == 'item':
+    elif cmd in ('show', 'item'):
         guid = options.pop(0)
 
         if not guid:
@@ -144,9 +144,7 @@ def move(args):
 
 def main():
     try:
-        if sys.argv[1].lower() == 'show':
-            show(sys.argv[2:])
-        elif sys.argv[1].lower() in ('list', 'lists', 'item'):
+        if sys.argv[1].lower() in ('list', 'lists', 'item', 'show'):
             show(sys.argv[1:])
         elif sys.argv[1].lower() in ('done', 'complete'):
             complete(sys.argv[2:])

@@ -8,7 +8,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from colorclass import Color
-from terminaltables import AsciiTable
+from terminaltables import AsciiTable, BorderlessTable
 
 class VittlifyError(Exception):
     pass
