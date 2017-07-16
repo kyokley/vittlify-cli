@@ -148,20 +148,20 @@ def move(args):
     move_item(guid, to_guid)
     print(Color('Moved item {autoblue}%s{/autoblue} to list {autoblue}%s{/autoblue}' % (guid, to_guid)))
 
-def main():
+def run(args):
     try:
-        if sys.argv[1].lower() in ('list', 'lists', 'item', 'show'):
-            show(sys.argv[1:])
-        elif sys.argv[1].lower() in ('done', 'complete'):
-            complete(sys.argv[2:])
-        elif sys.argv[1].lower() in ('undone', 'uncomplete'):
-            complete(sys.argv[2:], uncomplete=True)
-        elif sys.argv[1].lower() in ('modify', 'edit', 'comment', 'comments'):
-            modify(sys.argv[2:])
-        elif sys.argv[1].lower() in ('add',):
-            add(sys.argv[2:])
-        elif sys.argv[1].lower() in ('move', 'mv'):
-            move(sys.argv[2:])
+        if args[0].lower() in ('list', 'lists', 'item', 'show'):
+            show(args)
+        elif args[0].lower() in ('done', 'complete'):
+            complete(args[1:])
+        elif args[0].lower() in ('undone', 'uncomplete'):
+            complete(args[1:], uncomplete=True)
+        elif args[0].lower() in ('modify', 'edit', 'comment', 'comments'):
+            modify(args[1:])
+        elif args[0].lower() in ('add',):
+            add(args[1:])
+        elif args[0].lower() in ('move', 'mv'):
+            move(args[1:])
     except IndexError:
         print(Color('{autored}Incorrect number of arguments provided{/autored}'))
         if SHOW_TRACEBACK:
@@ -178,6 +178,9 @@ def main():
             raise
     except VittlifyError as e:
         print(Color('{autored}%s{/autored}' % e))
+
+def main():
+    run(sys.argv[1:])
 
 if __name__ == '__main__':
     main()

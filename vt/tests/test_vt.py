@@ -13,6 +13,7 @@ from vt.vt import (display_shopping_list,
                    modify,
                    add,
                    move,
+                   run,
                    )
 
 class TestDisplayShoppingList(unittest.TestCase):
@@ -514,3 +515,73 @@ class TestMove(unittest.TestCase):
         move(args)
         self.mock_move_item.assert_called_once_with('test_guid', 'to_list_guid')
         self.mock_Color.assert_called_once_with('Moved item {autoblue}test_guid{/autoblue} to list {autoblue}to_list_guid{/autoblue}')
+
+class TestRun(unittest.TestCase):
+    def setUp(self):
+        self.show_patcher = mock.patch('vt.vt.show')
+        self.mock_show = self.show_patcher.start()
+
+        self.complete_patcher = mock.patch('vt.vt.complete')
+        self.mock_complete = self.complete_patcher.start()
+
+        self.modify_patcher = mock.patch('vt.vt.modify')
+        self.mock_modify = self.modify_patcher.start()
+
+        self.add_patcher = mock.patch('vt.vt.add')
+        self.mock_add = self.add_patcher.start()
+
+        self.move_patcher = mock.patch('vt.vt.move')
+        self.mock_move = self.move_patcher.start()
+
+    def tearDown(self):
+        self.show_patcher.stop()
+        self.complete_patcher.stop()
+        self.modify_patcher.stop()
+        self.add_patcher.stop()
+        self.move_patcher.stop()
+
+    def test_list(self):
+        test_args = shlex.split('list test_guid')
+        run(test_args)
+        self.mock_show.assert_called_once_with(test_args)
+        self.assertFalse(self.mock_complete.called)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_lists(self):
+        test_args = shlex.split('lists')
+        run(test_args)
+        self.mock_show.assert_called_once_with(test_args)
+        self.assertFalse(self.mock_complete.called)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_item(self):
+        test_args = shlex.split('item test_guid')
+        run(test_args)
+        self.mock_show.assert_called_once_with(test_args)
+        self.assertFalse(self.mock_complete.called)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_show(self):
+        test_args = shlex.split('show test_guid')
+        run(test_args)
+        self.mock_show.assert_called_once_with(test_args)
+        self.assertFalse(self.mock_complete.called)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_done(self):
+        test_args = shlex.split('done test_guid')
+        expected = ['test_guid']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.mock_complete.assert_called_once_with(expected)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
