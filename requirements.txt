@@ -1,5 +1,5 @@
 requests
 pysocks
-terminaltables
+git+https://github.com/kyokley/terminaltables.git
 cryptography
 colorclass
