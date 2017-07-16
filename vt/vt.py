@@ -173,7 +173,7 @@ def run(args):
         if SHOW_TRACEBACK:
             raise
     except requests.exceptions.HTTPError as e:
-        print(Color('{autored}Server responded with %s{/autored}' % e.message))
+        print(Color('{autored}Server responded with %s{/autored}' % e))
         if SHOW_TRACEBACK:
             raise
     except VittlifyError as e:

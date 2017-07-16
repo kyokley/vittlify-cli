@@ -26,10 +26,10 @@ def _get_proxy_dict(proxy):
 def _send_request(method, data):
     data['username'] = USERNAME
     message = json.dumps(data)
-    encoded_sig = get_encoded_signature(message)
+    encoded_sig = get_encoded_signature(message.encode('utf-8'))
 
     payload = {'message': message,
-               'signature': encoded_sig}
+               'signature': encoded_sig.decode('utf-8')}
 
     if method.lower() == 'get':
         resp = requests.get(VITTLIFY_URL + 'vt/',

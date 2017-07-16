@@ -1,6 +1,7 @@
 import shlex
 import unittest
 import mock
+import requests
 
 from vt.vt import (display_shopping_list,
                    display_item,
@@ -533,12 +534,28 @@ class TestRun(unittest.TestCase):
         self.move_patcher = mock.patch('vt.vt.move')
         self.mock_move = self.move_patcher.start()
 
+        self.Color_patcher = mock.patch('vt.vt.Color')
+        self.mock_Color = self.Color_patcher.start()
+
+        self.SHOW_TRACEBACK_patcher = mock.patch('vt.vt.SHOW_TRACEBACK', False)
+        self.SHOW_TRACEBACK_patcher.start()
+
+        self.PROXY_patcher = mock.patch('vt.vt.PROXY', False)
+        self.PROXY_patcher.start()
+
+        self.VITTLIFY_URL_patcher = mock.patch('vt.vt.VITTLIFY_URL', 'vittlify_url')
+        self.VITTLIFY_URL_patcher.start()
+
     def tearDown(self):
         self.show_patcher.stop()
         self.complete_patcher.stop()
         self.modify_patcher.stop()
         self.add_patcher.stop()
         self.move_patcher.stop()
+        self.Color_patcher.stop()
+        self.SHOW_TRACEBACK_patcher.stop()
+        self.PROXY_patcher.stop()
+        self.VITTLIFY_URL_patcher.stop()
 
     def test_list(self):
         test_args = shlex.split('list test_guid')
@@ -585,3 +602,124 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+
+    def test_complete(self):
+        test_args = shlex.split('complete test_guid')
+        expected = ['test_guid']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.mock_complete.assert_called_once_with(expected)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_undone(self):
+        test_args = shlex.split('undone test_guid')
+        expected = ['test_guid']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.mock_complete.assert_called_once_with(expected, uncomplete=True)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_uncomplete(self):
+        test_args = shlex.split('uncomplete test_guid')
+        expected = ['test_guid']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.mock_complete.assert_called_once_with(expected, uncomplete=True)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_modify(self):
+        test_args = shlex.split("modify test_guid 'these are comments'")
+        expected = ['test_guid', 'these are comments']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.assertFalse(self.mock_complete.called)
+        self.mock_modify.assert_called_once_with(expected)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_edit(self):
+        test_args = shlex.split("edit test_guid 'these are comments'")
+        expected = ['test_guid', 'these are comments']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.assertFalse(self.mock_complete.called)
+        self.mock_modify.assert_called_once_with(expected)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_comment(self):
+        test_args = shlex.split("comment test_guid 'these are comments'")
+        expected = ['test_guid', 'these are comments']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.assertFalse(self.mock_complete.called)
+        self.mock_modify.assert_called_once_with(expected)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_comments(self):
+        test_args = shlex.split("comments test_guid 'these are comments'")
+        expected = ['test_guid', 'these are comments']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.assertFalse(self.mock_complete.called)
+        self.mock_modify.assert_called_once_with(expected)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+
+    def test_add(self):
+        test_args = shlex.split("add 'this is a new item'")
+        expected = ['this is a new item']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.assertFalse(self.mock_complete.called)
+        self.assertFalse(self.mock_modify.called)
+        self.mock_add.assert_called_once_with(expected)
+        self.assertFalse(self.mock_move.called)
+
+    def test_move(self):
+        test_args = shlex.split("move old_guid new_guid")
+        expected = ['old_guid', 'new_guid']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.assertFalse(self.mock_complete.called)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.mock_move.assert_called_once_with(expected)
+
+    def test_mv(self):
+        test_args = shlex.split("mv old_guid new_guid")
+        expected = ['old_guid', 'new_guid']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.assertFalse(self.mock_complete.called)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.mock_move.assert_called_once_with(expected)
+
+    def test_index_error(self):
+        self.mock_add.side_effect = IndexError()
+
+        test_args = shlex.split("add 'this is a new item'")
+        run(test_args)
+        self.mock_Color.assert_called_once_with('{autored}Incorrect number of arguments provided{/autored}')
+
+    def test_connection_error(self):
+        self.mock_add.side_effect = requests.exceptions.ConnectionError()
+
+        test_args = shlex.split("add 'this is a new item'")
+        run(test_args)
+        self.mock_Color.assert_called_once_with('{autored}Unable to connect to Vittlify instance at vittlify_url{/autored}')
+
+    def test_http_error(self):
+        self.mock_add.side_effect = requests.exceptions.HTTPError('500 Message')
+
+        test_args = shlex.split("add 'this is a new item'")
+        run(test_args)
+        self.mock_Color.assert_called_once_with('{autored}Server responded with 500 Message{/autored}')

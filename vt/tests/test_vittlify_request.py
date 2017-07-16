@@ -89,11 +89,11 @@ class TestSendRequest(unittest.TestCase):
         self.assertEqual(expected, actual)
         self.mock_json.dumps.assert_called_once_with({'data': 'test_data',
                                                       'username': 'USERNAME'})
-        self.mock_get_encoded_signature.assert_called_once_with(self.mock_json.dumps.return_value)
+        self.mock_get_encoded_signature.assert_called_once_with(self.mock_json.dumps.return_value.encode.return_value)
         self.mock_get_proxy_dict.assert_called_once_with('PROXY')
         self.mock_requests.get.assert_called_once_with('VITTLIFY_URL/vt/',
                                                        json={'message': self.mock_json.dumps.return_value,
-                                                             'signature': self.mock_get_encoded_signature.return_value},
+                                                             'signature': self.mock_get_encoded_signature.return_value.decode.return_value},
                                                        proxies=self.mock_get_proxy_dict.return_value)
 
     def test_put(self):
@@ -104,11 +104,11 @@ class TestSendRequest(unittest.TestCase):
         self.assertEqual(expected, actual)
         self.mock_json.dumps.assert_called_once_with({'data': 'test_data',
                                                       'username': 'USERNAME'})
-        self.mock_get_encoded_signature.assert_called_once_with(self.mock_json.dumps.return_value)
+        self.mock_get_encoded_signature.assert_called_once_with(self.mock_json.dumps.return_value.encode.return_value)
         self.mock_get_proxy_dict.assert_called_once_with('PROXY')
         self.mock_requests.put.assert_called_once_with('VITTLIFY_URL/vt/',
                                                        json={'message': self.mock_json.dumps.return_value,
-                                                             'signature': self.mock_get_encoded_signature.return_value},
+                                                             'signature': self.mock_get_encoded_signature.return_value.decode.return_value},
                                                        proxies=self.mock_get_proxy_dict.return_value)
 
     def test_post(self):
@@ -119,11 +119,11 @@ class TestSendRequest(unittest.TestCase):
         self.assertEqual(expected, actual)
         self.mock_json.dumps.assert_called_once_with({'data': 'test_data',
                                                       'username': 'USERNAME'})
-        self.mock_get_encoded_signature.assert_called_once_with(self.mock_json.dumps.return_value)
+        self.mock_get_encoded_signature.assert_called_once_with(self.mock_json.dumps.return_value.encode.return_value)
         self.mock_get_proxy_dict.assert_called_once_with('PROXY')
         self.mock_requests.post.assert_called_once_with('VITTLIFY_URL/vt/',
                                                         json={'message': self.mock_json.dumps.return_value,
-                                                              'signature': self.mock_get_encoded_signature.return_value},
+                                                              'signature': self.mock_get_encoded_signature.return_value.decode.return_value},
                                                         proxies=self.mock_get_proxy_dict.return_value)
 
     def test_raises_vittlify_error_for_404(self):
