@@ -1,7 +1,10 @@
 import unittest
 import mock
 
-from vt.utils import format_row, print_table
+from vt.utils import (format_row,
+                      print_table,
+                      parse_options,
+                      )
 
 class TestFormatRow(unittest.TestCase):
     def setUp(self):
@@ -126,3 +129,84 @@ class TestPrintTable(unittest.TestCase):
         self.assertEqual(self.mock_AsciiTable.return_value.inner_heading_row_border, False)
         self.mock_Color.assert_called_once_with("{autoyellow}test_title{/autoyellow}")
         self.assertEqual(self.mock_AsciiTable.return_value.title, self.mock_Color.return_value)
+
+class TestParseOptions(unittest.TestCase):
+    def test_empty(self):
+        raw_options = []
+        expected = {}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+    def test_extended(self):
+        raw_options = ['asdf', '-e']
+        expected = {'extended': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = [ '-e','asdf']
+        expected = {'extended': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = ['asdf', '--extended']
+        expected = {'extended': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = [ '--extended','asdf']
+        expected = {'extended': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+    def test_quiet(self):
+        raw_options = ['asdf', '-q']
+        expected = {'quiet': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = [ '-q','asdf']
+        expected = {'quiet': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = ['asdf', '--quiet']
+        expected = {'quiet': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = [ '--quiet','asdf']
+        expected = {'quiet': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+    def test_mixed_options(self):
+        raw_options = [ '--extended','asdf', '--quiet']
+        expected = {'extended': True,
+                    'quiet': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+    def test_mixed_short_options(self):
+        raw_options = [ '-e','asdf', '-q']
+        expected = {'extended': True,
+                    'quiet': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = [ '-eq','asdf']
+        expected = {'extended': True,
+                    'quiet': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
