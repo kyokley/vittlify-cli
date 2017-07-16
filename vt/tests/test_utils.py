@@ -196,6 +196,13 @@ class TestParseOptions(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
+        raw_options = [ '-e','asdf', '--quiet']
+        expected = {'extended': True,
+                    'quiet': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
     def test_mixed_short_options(self):
         raw_options = [ '-e','asdf', '-q']
         expected = {'extended': True,

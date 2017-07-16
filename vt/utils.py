@@ -72,12 +72,18 @@ def get_encoded_signature(message):
 
 def parse_options(raw_options):
     options = {}
-    if ('--extended' in raw_options or
-            '-e' in raw_options):
-        options['extended'] = True
+    for val in raw_options:
+        arg = val.strip()
+        if arg.startswith('--'):
+            if arg == '--extended':
+                options['extended'] = True
+            elif arg == '--quiet':
+                options['quiet'] = True
+        elif arg.startswith('-'):
+            if 'e' in arg:
+                options['extended'] = True
 
-    if ('--quiet' in raw_options or
-            '-q' in raw_options):
-        options['quiet'] = True
+            if 'q' in arg:
+                options['quiet'] = True
 
     return options

@@ -251,7 +251,7 @@ class TestShowNoDefaultList(unittest.TestCase):
 
         self.mock_display_shopping_list.assert_called_once_with(guid='test_guid',
                                                                 extended=True,
-                                                                mode=ALL)
+                                                                )
 
     def test_lists(self):
         args = shlex.split("lists")
@@ -276,30 +276,6 @@ class TestShowNoDefaultList(unittest.TestCase):
         show(args)
 
         self.mock_display_item.assert_called_once_with('test_guid')
-
-    def test_done_no_extended(self):
-        args = shlex.split("done test_guid")
-        show(args)
-
-        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
-
-    def test_done_extended(self):
-        args = shlex.split("done test_guid -e")
-        show(args)
-
-        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
-
-    def test_completed_no_extended(self):
-        args = shlex.split("completed test_guid")
-        show(args)
-
-        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
-
-    def test_completed_extended(self):
-        args = shlex.split("completed test_guid -e")
-        show(args)
-
-        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
 
 class TestShowDefaultList(unittest.TestCase):
     def setUp(self):
@@ -337,13 +313,13 @@ class TestShowDefaultList(unittest.TestCase):
         args = shlex.split("list '' -e")
         show(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(guid='default_list', extended=True, mode=ALL)
+        self.mock_display_shopping_list.assert_called_once_with(guid='default_list', extended=True)
 
     def test_list_no_guid_extended(self):
         args = shlex.split("list -e")
         show(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(guid='default_list', extended=True, mode=ALL)
+        self.mock_display_shopping_list.assert_called_once_with(guid='default_list', extended=True)
 
     def test_list_no_extended(self):
         args = shlex.split("list test_guid")
@@ -357,7 +333,7 @@ class TestShowDefaultList(unittest.TestCase):
 
         self.mock_display_shopping_list.assert_called_once_with(guid='test_guid',
                                                                 extended=True,
-                                                                mode=ALL)
+                                                                )
 
     def test_lists(self):
         args = shlex.split("lists")
@@ -383,29 +359,6 @@ class TestShowDefaultList(unittest.TestCase):
 
         self.mock_display_item.assert_called_once_with('test_guid')
 
-    def test_done_no_extended(self):
-        args = shlex.split("done test_guid")
-        show(args)
-
-        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
-
-    def test_done_extended(self):
-        args = shlex.split("done test_guid -e")
-        show(args)
-
-        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
-
-    def test_completed_no_extended(self):
-        args = shlex.split("completed test_guid")
-        show(args)
-
-        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
-
-    def test_completed_extended(self):
-        args = shlex.split("completed test_guid -e")
-        show(args)
-
-        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
 
 class TestComplete(unittest.TestCase):
     def setUp(self):
@@ -414,6 +367,9 @@ class TestComplete(unittest.TestCase):
 
         self.Color_patcher = mock.patch('vt.vt.Color')
         self.mock_Color = self.Color_patcher.start()
+
+        self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
+        self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
 
         self.mock_complete_item.return_value = {'name': 'test_name'}
 
@@ -436,6 +392,24 @@ class TestComplete(unittest.TestCase):
         self.mock_complete_item.assert_called_once_with('test_guid',
                                                         uncomplete=True)
         self.mock_Color.assert_called_once_with('Marked {automagenta}test_name{/automagenta} undone.')
+
+    def test_done_extended(self):
+        args = shlex.split("-e")
+        complete(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
+
+    def test_completed_no_extended(self):
+        args = shlex.split("")
+        complete(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
+
+    def test_completed_extended(self):
+        args = shlex.split("--extended")
+        complete(args)
+
+        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
 
 class TestModify(unittest.TestCase):
     def setUp(self):
