@@ -72,7 +72,7 @@ class TestDisplayShoppingList(unittest.TestCase):
                                                mock.call({'name': 'item3'}, include_comments=False)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
-                                                       'formatted_row_3'], title='test_list')
+                                                       'formatted_row_3'], title='test_list', quiet=False)
 
     def test_all(self):
         guid = 'test_guid'
@@ -85,7 +85,7 @@ class TestDisplayShoppingList(unittest.TestCase):
                                                mock.call({'name': 'item3'}, include_comments=False)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
-                                                       'formatted_row_3'], title='test_list')
+                                                       'formatted_row_3'], title='test_list', quiet=False)
 
     def test_completed(self):
         guid = 'test_guid'
@@ -98,7 +98,7 @@ class TestDisplayShoppingList(unittest.TestCase):
                                                mock.call({'name': 'item3'}, include_comments=False)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
-                                                       'formatted_row_3'], title='Recently Completed')
+                                                       'formatted_row_3'], title='Recently Completed', quiet=False)
 
     def test_not_completed_extended(self):
         guid = 'test_guid'
@@ -111,7 +111,7 @@ class TestDisplayShoppingList(unittest.TestCase):
                                                mock.call({'name': 'item3'}, include_comments=True)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
-                                                       'formatted_row_3'], title='test_list')
+                                                       'formatted_row_3'], title='test_list', quiet=False)
 
     def test_all_extended(self):
         guid = 'test_guid'
@@ -124,7 +124,7 @@ class TestDisplayShoppingList(unittest.TestCase):
                                                mock.call({'name': 'item3'}, include_comments=True)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
-                                                       'formatted_row_3'], title='test_list')
+                                                       'formatted_row_3'], title='test_list', quiet=False)
 
     def test_completed_extended(self):
         guid = 'test_guid'
@@ -137,7 +137,7 @@ class TestDisplayShoppingList(unittest.TestCase):
                                                mock.call({'name': 'item3'}, include_comments=True)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
-                                                       'formatted_row_3'], title='Recently Completed')
+                                                       'formatted_row_3'], title='Recently Completed', quiet=False)
 
 class TestDisplayItem(unittest.TestCase):
     def setUp(self):

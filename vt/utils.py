@@ -13,9 +13,15 @@ from terminaltables import AsciiTable, BorderlessTable
 class VittlifyError(Exception):
     pass
 
-def print_table(data, title=None):
+def print_table(data, title=None, quiet=False):
+    if quiet:
+        table_class = BorderlessTable
+        title = None
+    else:
+        table_class = AsciiTable
+
     if data:
-        table = AsciiTable(data)
+        table = table_class(data)
         if title:
             table.title = Color("{autoyellow}%(title)s{/autoyellow}" % {'title': title})
         table.inner_heading_row_border = False
@@ -79,11 +85,16 @@ def parse_options(raw_options):
                 options['extended'] = True
             elif arg == '--quiet':
                 options['quiet'] = True
+            elif arg == '--unfinished':
+                options['unfinished'] = True
         elif arg.startswith('-'):
             if 'e' in arg:
                 options['extended'] = True
 
             if 'q' in arg:
                 options['quiet'] = True
+
+            if 'u' in arg:
+                options['unfinished'] = True
 
     return options
