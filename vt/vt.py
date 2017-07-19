@@ -34,6 +34,7 @@ DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
 def display_shopping_list(guid=None, extended=False, mode=ALL, quiet=False, unfinished=False):
     data = []
 
+    shopping_list = None
     if mode == NOT_COMPLETED or unfinished:
         shopping_list = get_shopping_list_info(guid)
         title = shopping_list['name']
@@ -47,7 +48,7 @@ def display_shopping_list(guid=None, extended=False, mode=ALL, quiet=False, unfi
         items = get_all_shopping_list_items(guid)
 
     for item in items:
-        data.append(format_row(item, include_comments=extended))
+        data.append(format_row(item, shopping_list, include_comments=extended))
 
     print_table(data, title=title, quiet=quiet)
 

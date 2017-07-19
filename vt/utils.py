@@ -33,7 +33,7 @@ def apply_strikethrough(string):
     string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)', r'{strike}\1{/strike}', string)
     return string
 
-def format_row(item, include_comments=False):
+def format_row(item, shopping_list, include_comments=False):
     row = []
 
     comments = item.get('comments')
@@ -52,7 +52,10 @@ def format_row(item, include_comments=False):
         guid = '{autoblue}%s{/autoblue}' % item['guid'][:8]
         name = '{automagenta}%s{/automagenta}' % name
 
-    row.extend([Color(guid), Color(name)])
+    if include_comments and shopping_list and shopping_list['categories']:
+        row.extend([Color(guid), item.get('category_name'), Color(name)])
+    else:
+        row.extend([Color(guid), Color(name)])
 
     if include_comments and comments:
         comments = Color(comments)
