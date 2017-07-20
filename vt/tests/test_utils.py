@@ -51,7 +51,7 @@ class TestFormatRow(unittest.TestCase):
                 'name': 'test_name',
                 'comments': 'test_comments'}
 
-        expected = ['guid_Color', 'name_Color', 'comments_Color']
+        expected = ['guid_Color', None, 'name_Color', 'comments_Color']
         actual = format_row(item, self.mock_shopping_list, include_comments=True)
 
         self.assertEqual(expected, actual)
@@ -95,7 +95,7 @@ class TestFormatRow(unittest.TestCase):
                 'comments': 'test_comments',
                 'done': True}
 
-        expected = ['guid_Color', 'name_Color', 'comments_Color']
+        expected = ['guid_Color', None, 'name_Color', 'comments_Color']
         actual = format_row(item, self.mock_shopping_list, include_comments=True)
 
         self.assertEqual(expected, actual)
