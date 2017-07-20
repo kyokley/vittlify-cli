@@ -54,6 +54,9 @@ class TestSendRequest(unittest.TestCase):
         self.PROXY_patcher = mock.patch('vt.vittlify_request.PROXY', 'PROXY')
         self.PROXY_patcher.start()
 
+        self.REQUEST_TIMEOUT_patcher = mock.patch('vt.vittlify_request.REQUEST_TIMEOUT', 'REQUEST_TIMEOUT')
+        self.REQUEST_TIMEOUT_patcher.start()
+
         self._get_proxy_dict_patcher = mock.patch('vt.vittlify_request._get_proxy_dict')
         self.mock_get_proxy_dict = self._get_proxy_dict_patcher.start()
 
@@ -80,6 +83,7 @@ class TestSendRequest(unittest.TestCase):
         self.USERNAME_patcher.stop()
         self._get_proxy_dict_patcher.stop()
         self.PROXY_patcher.stop()
+        self.REQUEST_TIMEOUT_patcher.stop()
 
     def test_get(self):
         test_data = {'data': 'test_data'}
@@ -94,7 +98,8 @@ class TestSendRequest(unittest.TestCase):
         self.mock_requests.get.assert_called_once_with('VITTLIFY_URL/vt/',
                                                        json={'message': self.mock_json.dumps.return_value,
                                                              'signature': self.mock_get_encoded_signature.return_value.decode.return_value},
-                                                       proxies=self.mock_get_proxy_dict.return_value)
+                                                       proxies=self.mock_get_proxy_dict.return_value,
+                                                       timeout='REQUEST_TIMEOUT')
 
     def test_put(self):
         test_data = {'data': 'test_data'}
@@ -109,7 +114,8 @@ class TestSendRequest(unittest.TestCase):
         self.mock_requests.put.assert_called_once_with('VITTLIFY_URL/vt/',
                                                        json={'message': self.mock_json.dumps.return_value,
                                                              'signature': self.mock_get_encoded_signature.return_value.decode.return_value},
-                                                       proxies=self.mock_get_proxy_dict.return_value)
+                                                       proxies=self.mock_get_proxy_dict.return_value,
+                                                       timeout='REQUEST_TIMEOUT')
 
     def test_post(self):
         test_data = {'data': 'test_data'}
@@ -124,7 +130,8 @@ class TestSendRequest(unittest.TestCase):
         self.mock_requests.post.assert_called_once_with('VITTLIFY_URL/vt/',
                                                         json={'message': self.mock_json.dumps.return_value,
                                                               'signature': self.mock_get_encoded_signature.return_value.decode.return_value},
-                                                        proxies=self.mock_get_proxy_dict.return_value)
+                                                        proxies=self.mock_get_proxy_dict.return_value,
+                                                        timeout='REQUEST_TIMEOUT')
 
     def test_raises_vittlify_error_for_404(self):
         test_data = {'data': 'test_data'}

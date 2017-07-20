@@ -7,6 +7,7 @@ from .utils import get_encoded_signature, VittlifyError
 VITTLIFY_URL = os.environ.get('VT_URL') or 'http://127.0.0.1:8000/vittlify/'
 USERNAME = os.environ.get('VT_USERNAME') or os.environ.get('USER')
 PROXY = os.environ.get('VT_PROXY')
+REQUEST_TIMEOUT = 5
 
 def _get_proxy_dict(proxy):
     proxy_dict = {}
@@ -34,15 +35,18 @@ def _send_request(method, data):
     if method.lower() == 'get':
         resp = requests.get(VITTLIFY_URL + 'vt/',
                             json=payload,
-                            proxies=_get_proxy_dict(PROXY))
+                            proxies=_get_proxy_dict(PROXY),
+                            timeout=REQUEST_TIMEOUT)
     elif method.lower() == 'put':
         resp = requests.put(VITTLIFY_URL + 'vt/',
                             json=payload,
-                            proxies=_get_proxy_dict(PROXY))
+                            proxies=_get_proxy_dict(PROXY),
+                            timeout=REQUEST_TIMEOUT)
     elif method.lower() == 'post':
         resp = requests.post(VITTLIFY_URL + 'vt/',
                              json=payload,
-                             proxies=_get_proxy_dict(PROXY))
+                             proxies=_get_proxy_dict(PROXY),
+                             timeout=REQUEST_TIMEOUT)
 
     if resp.status_code in (404, 409):
         raise VittlifyError(resp.json())
