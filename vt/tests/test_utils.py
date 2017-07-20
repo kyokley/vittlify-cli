@@ -10,6 +10,9 @@ class TestFormatRow(unittest.TestCase):
     def setUp(self):
         self.Color_patcher = mock.patch('vt.utils.Color')
         self.mock_Color = self.Color_patcher.start()
+        self.mock_shopping_list = {'categories': [{'name': 'Type A'},
+                                                  {'name': 'Type B'}],
+                                   'name': 'list_name'}
 
     def tearDown(self):
         self.Color_patcher.stop()
@@ -21,7 +24,7 @@ class TestFormatRow(unittest.TestCase):
                 'name': 'test_name'}
 
         expected = ['guid_Color', 'name_Color']
-        actual = format_row(item)
+        actual = format_row(item, self.mock_shopping_list)
 
         self.assertEqual(expected, actual)
         self.mock_Color.assert_has_calls([mock.call('{autoblue}asdf{/autoblue}'),
@@ -35,7 +38,7 @@ class TestFormatRow(unittest.TestCase):
                 'comments': 'test_comments'}
 
         expected = ['guid_Color', 'name_Color']
-        actual = format_row(item)
+        actual = format_row(item, self.mock_shopping_list)
 
         self.assertEqual(expected, actual)
         self.mock_Color.assert_has_calls([mock.call('{autoblue}asdf{/autoblue}'),
@@ -49,7 +52,7 @@ class TestFormatRow(unittest.TestCase):
                 'comments': 'test_comments'}
 
         expected = ['guid_Color', 'name_Color', 'comments_Color']
-        actual = format_row(item, include_comments=True)
+        actual = format_row(item, self.mock_shopping_list, include_comments=True)
 
         self.assertEqual(expected, actual)
         self.mock_Color.assert_has_calls([mock.call('{autoblue}asdf{/autoblue}'),
@@ -63,7 +66,7 @@ class TestFormatRow(unittest.TestCase):
                 'done': True}
 
         expected = ['guid_Color', 'name_Color']
-        actual = format_row(item)
+        actual = format_row(item, self.mock_shopping_list)
 
         self.assertEqual(expected, actual)
         self.mock_Color.assert_has_calls([mock.call('{autoblue}{strike}asdf{/strike}{/autoblue}'),
@@ -78,7 +81,7 @@ class TestFormatRow(unittest.TestCase):
                 'done': True}
 
         expected = ['guid_Color', 'name_Color']
-        actual = format_row(item)
+        actual = format_row(item, self.mock_shopping_list)
 
         self.assertEqual(expected, actual)
         self.mock_Color.assert_has_calls([mock.call('{autoblue}{strike}asdf{/strike}{/autoblue}'),
@@ -93,7 +96,7 @@ class TestFormatRow(unittest.TestCase):
                 'done': True}
 
         expected = ['guid_Color', 'name_Color', 'comments_Color']
-        actual = format_row(item, include_comments=True)
+        actual = format_row(item, self.mock_shopping_list, include_comments=True)
 
         self.assertEqual(expected, actual)
         self.mock_Color.assert_has_calls([mock.call('{autoblue}{strike}asdf{/strike}{/autoblue}'),
