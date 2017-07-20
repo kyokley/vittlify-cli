@@ -90,6 +90,8 @@ def parse_options(raw_options):
                 options['quiet'] = True
             elif arg == '--unfinished':
                 options['unfinished'] = True
+            elif arg == '--categories':
+                options['categories'] = True
         elif arg.startswith('-'):
             if 'e' in arg:
                 options['extended'] = True
@@ -99,5 +101,8 @@ def parse_options(raw_options):
 
             if 'u' in arg:
                 options['unfinished'] = True
+
+            if 'c' in arg:
+                options['categories'] = True
 
     return options

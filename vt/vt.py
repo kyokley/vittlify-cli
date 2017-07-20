@@ -31,7 +31,12 @@ DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
  NOT_COMPLETED,
  ALL) = range(3)
 
-def display_shopping_list(guid=None, extended=False, mode=ALL, quiet=False, unfinished=False):
+def display_shopping_list(guid=None,
+                          extended=False,
+                          mode=ALL,
+                          quiet=False,
+                          unfinished=False,
+                          ):
     data = []
 
     shopping_list = None
@@ -60,9 +65,22 @@ def display_all_shopping_lists():
     shopping_lists = get_all_shopping_lists()
     data = []
     for shopping_list in shopping_lists:
-        data.append(format_row(shopping_list))
+        data.append(format_row(shopping_list, None))
 
     print_table(data, title='All Lists')
+
+def display_shopping_list_categories(guid=None):
+    shopping_list = get_shopping_list_info(guid)
+    list_categories = shopping_list.get('categories')
+
+    data = []
+
+    if not list_categories:
+        print(Color("{autored}No categories found for %s{/autored}." % shopping_list['name']))
+    else:
+        for category in list_categories:
+            data.append([category['name']])
+        print_table(data, title=shopping_list['name'])
 
 def show(args):
     cmd = args.pop(0).lower()
@@ -85,7 +103,10 @@ def show(args):
             raise IndexError('Incorrect number of arguments')
 
         try:
-            display_shopping_list(guid=guid, **options)
+            if options.get('categories'):
+                display_shopping_list_categories(guid=guid)
+            else:
+                display_shopping_list(guid=guid, **options)
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
 
