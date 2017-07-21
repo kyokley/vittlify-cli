@@ -160,7 +160,7 @@ class TestDisplayItem(unittest.TestCase):
     def test_(self):
         display_item(self.test_guid)
         self.mock_get_item.assert_called_once_with(self.test_guid)
-        self.mock_format_row.assert_called_once_with(self.mock_get_item.return_value, include_comments=True)
+        self.mock_format_row.assert_called_once_with(self.mock_get_item.return_value, None, include_comments=True)
         self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
 
 class TestDisplayAllShoppingLists(unittest.TestCase):

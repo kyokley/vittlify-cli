@@ -59,7 +59,7 @@ def display_shopping_list(guid=None,
 
 def display_item(guid):
     item = get_item(guid)
-    print_table([format_row(item, include_comments=True)])
+    print_table([format_row(item, None, include_comments=True)])
 
 def display_all_shopping_lists():
     shopping_lists = get_all_shopping_lists()
