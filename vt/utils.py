@@ -33,7 +33,7 @@ def apply_strikethrough(string):
     string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)', r'{strike}\1{/strike}', string)
     return string
 
-def format_row(item, shopping_list, include_comments=False):
+def format_row(item, shopping_list=None, include_comments=False):
     row = []
 
     comments = item.get('comments')
