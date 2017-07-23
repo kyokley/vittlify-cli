@@ -103,6 +103,24 @@ class TestFormatRow(unittest.TestCase):
                                           mock.call('{automagenta}{strike}+{/strike} {strike}test_name{/strike}{/automagenta}'),
                                           mock.call('{strike}test_comments{/strike}')])
 
+    def test_categories(self):
+        self.mock_shopping_list['categories'] = ['type A', 'type B']
+        self.mock_Color.side_effect = ['guid_Color', 'name_Color', 'comments_Color']
+
+        item = {'guid': 'asdf',
+                'name': 'test_name',
+                'comments': 'test_comments',
+                'category_name': 'type A',
+                'done': True}
+
+        expected = ['guid_Color', 'type A', 'name_Color', 'comments_Color']
+        actual = format_row(item, self.mock_shopping_list, include_comments=True)
+
+        self.assertEqual(expected, actual)
+        self.mock_Color.assert_has_calls([mock.call('{autoblue}{strike}asdf{/strike}{/autoblue}'),
+                                          mock.call('{automagenta}{strike}+{/strike} {strike}test_name{/strike}{/automagenta}'),
+                                          mock.call('{strike}test_comments{/strike}')])
+
 class TestPrintTable(unittest.TestCase):
     def setUp(self):
         self.Color_patcher = mock.patch('vt.utils.Color')
@@ -217,6 +235,56 @@ class TestParseOptions(unittest.TestCase):
         raw_options = [ '-eq','asdf']
         expected = {'extended': True,
                     'quiet': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+    def test_categories(self):
+        raw_options = ['asdf', '-c']
+        expected = {'categories': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = ['-c','asdf']
+        expected = {'categories': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = ['asdf', '--categories']
+        expected = {'categories': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = [ '--categories','asdf']
+        expected = {'categories': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+    def test_unfinished(self):
+        raw_options = ['asdf', '-u']
+        expected = {'unfinished': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = ['-u','asdf']
+        expected = {'unfinished': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = ['asdf', '--unfinished']
+        expected = {'unfinished': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = [ '--unfinished','asdf']
+        expected = {'unfinished': True}
         actual = parse_options(raw_options)
 
         self.assertEqual(expected, actual)
