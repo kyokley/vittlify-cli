@@ -104,7 +104,7 @@ def show(args):
 
         try:
             if options.get('categories'):
-                display_shopping_list_categories(guid=guid)
+                display_shopping_list_categories(guid)
             else:
                 display_shopping_list(guid=guid, **options)
         except VittlifyError as e:
