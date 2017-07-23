@@ -402,6 +402,7 @@ class TestShowDefaultList(unittest.TestCase):
         show(args)
 
         self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
+        self.mock_display_shopping_list_categories.assert_called_once_with('test_guid')
 
     def test_display_shopping_list_raises(self):
         self.mock_display_shopping_list.side_effect = VittlifyError('Got an error')
@@ -410,6 +411,7 @@ class TestShowDefaultList(unittest.TestCase):
         show(args)
 
         self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
+        self.mock_display_shopping_list.assert_called_once_with(guid='test_guid')
 
     def test_display_item_raises(self):
         self.mock_display_item.side_effect = VittlifyError('Got an error')
@@ -417,6 +419,14 @@ class TestShowDefaultList(unittest.TestCase):
         args = shlex.split("show test_guid")
         show(args)
 
+        self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
+
+    def test_display_all_shopping_lists_raises(self):
+        self.mock_display_all_shopping_lists.side_effect = VittlifyError('Got an error')
+        args = shlex.split("lists")
+        show(args)
+
+        self.mock_display_all_shopping_lists.assert_called_once_with()
         self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
 
 
