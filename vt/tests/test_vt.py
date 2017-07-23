@@ -6,6 +6,7 @@ import requests
 from vt.vt import (display_shopping_list,
                    display_item,
                    display_all_shopping_lists,
+                   display_shopping_list_categories,
                    COMPLETED,
                    NOT_COMPLETED,
                    ALL,
@@ -729,3 +730,38 @@ class TestRun(unittest.TestCase):
         test_args = shlex.split("add 'this is a new item'")
         run(test_args)
         self.mock_Color.assert_called_once_with('{autored}Server responded with 500 Message{/autored}')
+
+class TestDisplayShoppingListCategories(unittest.TestCase):
+    def setUp(self):
+        self.get_shopping_list_info_patcher = mock.patch('vt.vt.get_shopping_list_info')
+        self.mock_get_shopping_list_info = self.get_shopping_list_info_patcher.start()
+
+        self.print_table_patcher = mock.patch('vt.vt.print_table')
+        self.mock_print_table = self.print_table_patcher.start()
+
+        self.Color_patcher = mock.patch('vt.vt.Color')
+        self.mock_Color = self.Color_patcher.start()
+
+        self.mock_get_shopping_list_info.return_value = {'name': 'test_list'}
+
+    def tearDown(self):
+        self.get_shopping_list_info_patcher.stop()
+        self.print_table_patcher.stop()
+        self.Color_patcher.stop()
+
+    def test_no_categories(self):
+        display_shopping_list_categories('test_guid')
+        self.mock_get_shopping_list_info.assert_called_once_with('test_guid')
+
+        self.mock_Color.assert_called_once_with("{autored}No categories found for test_list{/autored}.")
+
+    def test_has_categories(self):
+        self.mock_get_shopping_list_info.return_value = {'name': 'test_list',
+                                                         'categories': [{'name': 'type A'},
+                                                                        {'name': 'type B'},
+                                                                        ],
+                                                         }
+
+        display_shopping_list_categories('test_guid')
+        self.mock_print_table.assert_called_once_with([['type A'], ['type B']],
+                                                      title='test_list')

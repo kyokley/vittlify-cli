@@ -69,7 +69,7 @@ def display_all_shopping_lists():
 
     print_table(data, title='All Lists')
 
-def display_shopping_list_categories(guid=None):
+def display_shopping_list_categories(guid):
     shopping_list = get_shopping_list_info(guid)
     list_categories = shopping_list.get('categories')
 
