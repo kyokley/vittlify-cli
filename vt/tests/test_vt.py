@@ -18,6 +18,8 @@ from vt.vt import (display_shopping_list,
                    run,
                    )
 
+from vt.utils import VittlifyError
+
 class TestDisplayShoppingList(unittest.TestCase):
     def setUp(self):
         self.get_shopping_list_info_patcher = mock.patch('vt.vt.get_shopping_list_info')
@@ -285,20 +287,34 @@ class TestShowDefaultList(unittest.TestCase):
         self.DEFAULT_LIST_patcher = mock.patch('vt.vt.DEFAULT_LIST', 'default_list')
         self.DEFAULT_LIST_patcher.start()
 
+        self.parse_options_patcher = mock.patch('vt.vt.parse_options')
+        self.mock_parse_options = self.parse_options_patcher.start()
+
         self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
         self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
 
         self.display_all_shopping_lists_patcher = mock.patch('vt.vt.display_all_shopping_lists')
         self.mock_display_all_shopping_lists = self.display_all_shopping_lists_patcher.start()
 
+        self.display_shopping_list_categories_patcher = mock.patch('vt.vt.display_shopping_list_categories')
+        self.mock_display_shopping_list_categories = self.display_shopping_list_categories_patcher.start()
+
+        self.Color_patcher = mock.patch('vt.vt.Color')
+        self.mock_Color = self.Color_patcher.start()
+
         self.display_item_patcher = mock.patch('vt.vt.display_item')
         self.mock_display_item = self.display_item_patcher.start()
 
+        self.mock_parse_options.return_value = {}
+
     def tearDown(self):
         self.DEFAULT_LIST_patcher.stop()
+        self.parse_options_patcher.stop()
         self.display_shopping_list_patcher.stop()
         self.display_all_shopping_lists_patcher.stop()
         self.display_item_patcher.stop()
+        self.display_shopping_list_categories_patcher.stop()
+        self.Color_patcher.stop()
 
     def test_list_empty_guid(self):
         args = shlex.split("list ''")
@@ -313,12 +329,16 @@ class TestShowDefaultList(unittest.TestCase):
         self.mock_display_shopping_list.assert_called_once_with(guid='default_list')
 
     def test_list_empty_guid_extended(self):
+        self.mock_parse_options.return_value = {'extended': True}
+
         args = shlex.split("list '' -e")
         show(args)
 
         self.mock_display_shopping_list.assert_called_once_with(guid='default_list', extended=True)
 
     def test_list_no_guid_extended(self):
+        self.mock_parse_options.return_value = {'extended': True}
+
         args = shlex.split("list -e")
         show(args)
 
@@ -331,6 +351,8 @@ class TestShowDefaultList(unittest.TestCase):
         self.mock_display_shopping_list.assert_called_once_with(guid='test_guid')
 
     def test_list_extended(self):
+        self.mock_parse_options.return_value = {'extended': True}
+
         args = shlex.split("list test_guid -e")
         show(args)
 
@@ -361,6 +383,41 @@ class TestShowDefaultList(unittest.TestCase):
         show(args)
 
         self.mock_display_item.assert_called_once_with('test_guid')
+
+    def test_display_list_categories(self):
+        self.mock_parse_options.return_value = {'categories': [{'name': 'type A'},
+                                                               {'name': 'type B'}]}
+
+        args = shlex.split("list -c test_guid")
+        show(args)
+
+        self.mock_display_shopping_list_categories.assert_called_once_with('test_guid')
+
+    def test_display_list_categories_raises(self):
+        self.mock_parse_options.return_value = {'categories': [{'name': 'type A'},
+                                                               {'name': 'type B'}]}
+        self.mock_display_shopping_list_categories.side_effect = VittlifyError('Got an error')
+
+        args = shlex.split("list -c test_guid")
+        show(args)
+
+        self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
+
+    def test_display_shopping_list_raises(self):
+        self.mock_display_shopping_list.side_effect = VittlifyError('Got an error')
+
+        args = shlex.split("list test_guid")
+        show(args)
+
+        self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
+
+    def test_display_item_raises(self):
+        self.mock_display_item.side_effect = VittlifyError('Got an error')
+
+        args = shlex.split("show test_guid")
+        show(args)
+
+        self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
 
 
 class TestComplete(unittest.TestCase):
