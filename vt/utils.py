@@ -33,10 +33,14 @@ def apply_strikethrough(string):
     string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)', r'{strike}\1{/strike}', string)
     return string
 
-def format_row(item, shopping_list=None, include_comments=False):
+def format_row(item,
+               shopping_list=None,
+               include_comments=False,
+               include_category=False):
     row = []
 
     comments = item.get('comments')
+    category = item.get('category_name') or 'None'
 
     if comments:
         name = '+ %s' % item['name']
@@ -48,12 +52,15 @@ def format_row(item, shopping_list=None, include_comments=False):
         name = '{automagenta}%s{/automagenta}' % apply_strikethrough(name)
         if comments:
             comments = apply_strikethrough(comments)
+
+        if category:
+            category = apply_strikethrough(category)
     else:
         guid = '{autoblue}%s{/autoblue}' % item['guid'][:8]
         name = '{automagenta}%s{/automagenta}' % name
 
-    if include_comments and shopping_list and shopping_list['categories']:
-        row.extend([Color(guid), item.get('category_name'), Color(name)])
+    if include_category and shopping_list and shopping_list['categories']:
+        row.extend([Color(guid), Color(category), Color(name)])
     else:
         row.extend([Color(guid), Color(name)])
 
@@ -91,7 +98,7 @@ def parse_options(raw_options):
             elif arg == '--unfinished':
                 options['unfinished'] = True
             elif arg == '--categories':
-                options['categories'] = True
+                options['include_category'] = True
         elif arg.startswith('-'):
             if 'e' in arg:
                 options['extended'] = True
@@ -103,6 +110,6 @@ def parse_options(raw_options):
                 options['unfinished'] = True
 
             if 'c' in arg:
-                options['categories'] = True
+                options['include_category'] = True
 
     return options

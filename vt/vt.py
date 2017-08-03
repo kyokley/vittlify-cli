@@ -36,6 +36,7 @@ def display_shopping_list(guid=None,
                           mode=ALL,
                           quiet=False,
                           unfinished=False,
+                          include_category=False,
                           ):
     data = []
 
@@ -53,7 +54,10 @@ def display_shopping_list(guid=None,
         items = get_all_shopping_list_items(guid)
 
     for item in items:
-        data.append(format_row(item, shopping_list, include_comments=extended))
+        data.append(format_row(item,
+                               shopping_list,
+                               include_comments=extended,
+                               include_category=include_category))
 
     print_table(data, title=title, quiet=quiet)
 
@@ -103,10 +107,7 @@ def show(args):
             raise IndexError('Incorrect number of arguments')
 
         try:
-            if options.get('categories'):
-                display_shopping_list_categories(guid)
-            else:
-                display_shopping_list(guid=guid, **options)
+            display_shopping_list(guid=guid, **options)
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
 
@@ -171,6 +172,20 @@ def move(args):
     move_item(guid, to_guid)
     print(Color('Moved item {autoblue}%s{/autoblue} to list {autoblue}%s{/autoblue}' % (guid, to_guid)))
 
+def categories(args):
+    guid = args.pop(0).lower() if len(args) > 0 else None
+
+    if not guid:
+        guid = DEFAULT_LIST
+
+    if not guid:
+        raise IndexError('Incorrect number of arguments')
+
+    try:
+        display_shopping_list_categories(guid)
+    except VittlifyError as e:
+        print(Color("{autored}%s{/autored}" % e))
+
 def run(args):
     try:
         if args[0].lower() in ('list', 'lists', 'item', 'show'):
@@ -185,6 +200,8 @@ def run(args):
             add(args[1:])
         elif args[0].lower() in ('move', 'mv'):
             move(args[1:])
+        elif args[0].lower() in ('categories',):
+            categories(args[1:])
     except IndexError:
         print(Color('{autored}Incorrect number of arguments provided{/autored}'))
         if SHOW_TRACEBACK:
