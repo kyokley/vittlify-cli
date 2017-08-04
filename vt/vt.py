@@ -14,6 +14,7 @@ from .vittlify_request import (get_all_shopping_lists,
                               modify_item,
                               add_item,
                               move_item,
+                              categorize_item,
                               VITTLIFY_URL,
                               PROXY,
                               )
@@ -186,6 +187,20 @@ def categories(args):
     except VittlifyError as e:
         print(Color("{autored}%s{/autored}" % e))
 
+def categorize(args):
+    if len(args) != 2:
+        raise IndexError('Incorrect number of arguments. Expected 2, got %s' % len(args))
+
+    guid = args.pop(0).lower()
+    category_name = args.pop(0).lower()
+
+    try:
+        categorize_item(guid, category_name)
+    except VittlifyError as e:
+        print(Color("{autored}%s{/autored}" % e))
+
+    print(Color('Set item {autoblue}%s{/autoblue} to category {autoblue}%s{/autoblue}' % (guid, category_name.title())))
+
 def run(args):
     try:
         if args[0].lower() in ('list', 'lists', 'item', 'show'):
@@ -202,6 +217,8 @@ def run(args):
             move(args[1:])
         elif args[0].lower() in ('categories',):
             categories(args[1:])
+        elif args[0].lower() in ('categorize', 'label'):
+            categorize(args[1:])
     except IndexError:
         print(Color('{autored}Incorrect number of arguments provided{/autored}'))
         if SHOW_TRACEBACK:

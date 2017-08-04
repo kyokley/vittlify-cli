@@ -113,3 +113,10 @@ def move_item(guid, to_guid):
             'to_list_guid': to_guid,
             }
     return _send_request('PUT', data)
+
+def categorize_item(guid, category_name):
+    data = {'endpoint': 'categorize',
+            'guid': guid,
+            'category_name': category_name,
+            }
+    return _send_request('PUT', data)
