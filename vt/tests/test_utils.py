@@ -57,7 +57,7 @@ class TestFormatRow(unittest.TestCase):
                 'name': 'test_name',
                 'comments': 'test_comments'}
 
-        expected = ['guid_Color', None, 'name_Color', 'comments_Color']
+        expected = ['guid_Color', 'name_Color', 'comments_Color']
         actual = format_row(item, self.mock_shopping_list, include_comments=True)
 
         self.assertEqual(expected, actual)
@@ -101,7 +101,7 @@ class TestFormatRow(unittest.TestCase):
                 'comments': 'test_comments',
                 'done': True}
 
-        expected = ['guid_Color', None, 'name_Color', 'comments_Color']
+        expected = ['guid_Color', 'name_Color', 'comments_Color']
         actual = format_row(item, self.mock_shopping_list, include_comments=True)
 
         self.assertEqual(expected, actual)
@@ -111,7 +111,7 @@ class TestFormatRow(unittest.TestCase):
 
     def test_categories(self):
         self.mock_shopping_list['categories'] = ['type A', 'type B']
-        self.mock_Color.side_effect = ['guid_Color', 'name_Color', 'comments_Color']
+        self.mock_Color.side_effect = ['guid_Color', 'category_Color', 'name_Color']
 
         item = {'guid': 'asdf',
                 'name': 'test_name',
@@ -119,13 +119,14 @@ class TestFormatRow(unittest.TestCase):
                 'category_name': 'type A',
                 'done': True}
 
-        expected = ['guid_Color', 'type A', 'name_Color', 'comments_Color']
-        actual = format_row(item, self.mock_shopping_list, include_comments=True)
+        expected = ['guid_Color', 'category_Color', 'name_Color']
+        actual = format_row(item, self.mock_shopping_list, include_comments=False, include_category=True)
 
         self.assertEqual(expected, actual)
         self.mock_Color.assert_has_calls([mock.call('{autoblue}{strike}asdf{/strike}{/autoblue}'),
+                                          mock.call('{strike}type{/strike} {strike}A{/strike}'),
                                           mock.call('{automagenta}{strike}+{/strike} {strike}test_name{/strike}{/automagenta}'),
-                                          mock.call('{strike}test_comments{/strike}')])
+                                          ])
 
 class TestPrintTable(unittest.TestCase):
     def setUp(self):
@@ -247,25 +248,25 @@ class TestParseOptions(unittest.TestCase):
 
     def test_categories(self):
         raw_options = ['asdf', '-c']
-        expected = {'categories': True}
+        expected = {'include_category': True}
         actual = parse_options(raw_options)
 
         self.assertEqual(expected, actual)
 
         raw_options = ['-c','asdf']
-        expected = {'categories': True}
+        expected = {'include_category': True}
         actual = parse_options(raw_options)
 
         self.assertEqual(expected, actual)
 
         raw_options = ['asdf', '--categories']
-        expected = {'categories': True}
+        expected = {'include_category': True}
         actual = parse_options(raw_options)
 
         self.assertEqual(expected, actual)
 
         raw_options = [ '--categories','asdf']
-        expected = {'categories': True}
+        expected = {'include_category': True}
         actual = parse_options(raw_options)
 
         self.assertEqual(expected, actual)

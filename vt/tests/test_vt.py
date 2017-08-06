@@ -16,6 +16,7 @@ from vt.vt import (display_shopping_list,
                    add,
                    move,
                    run,
+                   categories,
                    )
 
 from vt.utils import VittlifyError
@@ -70,9 +71,9 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_shopping_list_items.assert_called_once_with(guid)
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_comments=False),
-                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_comments=False),
-                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_comments=False)])
+        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_category=False, include_comments=False),
+                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_category=False, include_comments=False),
+                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_category=False, include_comments=False)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
                                                        'formatted_row_3'], title='test_list', quiet=False)
@@ -83,9 +84,9 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_all_shopping_list_items.assert_called_once_with(guid)
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_comments=False),
-                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_comments=False),
-                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_comments=False)])
+        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_category=False, include_comments=False),
+                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_category=False, include_comments=False),
+                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_category=False, include_comments=False)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
                                                        'formatted_row_3'], title='test_list', quiet=False)
@@ -96,9 +97,9 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.assertFalse(self.mock_get_shopping_list_info.called)
         self.mock_get_completed.assert_called_once_with()
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, None, include_comments=False),
-                                               mock.call({'name': 'item2'}, None, include_comments=False),
-                                               mock.call({'name': 'item3'}, None, include_comments=False)])
+        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, None, include_category=False, include_comments=False),
+                                               mock.call({'name': 'item2'}, None, include_category=False, include_comments=False),
+                                               mock.call({'name': 'item3'}, None, include_category=False, include_comments=False)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
                                                        'formatted_row_3'], title='Recently Completed', quiet=False)
@@ -109,9 +110,9 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_shopping_list_items.assert_called_once_with(guid)
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_comments=True),
-                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_comments=True),
-                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_comments=True)])
+        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_category=False, include_comments=True),
+                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_category=False, include_comments=True),
+                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_category=False, include_comments=True)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
                                                        'formatted_row_3'], title='test_list', quiet=False)
@@ -122,9 +123,9 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_all_shopping_list_items.assert_called_once_with(guid)
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_comments=True),
-                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_comments=True),
-                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_comments=True)])
+        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_category=False, include_comments=True),
+                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_category=False, include_comments=True),
+                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_category=False, include_comments=True)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
                                                        'formatted_row_3'], title='test_list', quiet=False)
@@ -135,9 +136,9 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.assertFalse(self.mock_get_shopping_list_info.called)
         self.mock_get_completed.assert_called_once_with()
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, None, include_comments=True),
-                                               mock.call({'name': 'item2'}, None, include_comments=True),
-                                               mock.call({'name': 'item3'}, None, include_comments=True)])
+        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, None, include_category=False, include_comments=True),
+                                               mock.call({'name': 'item2'}, None, include_category=False, include_comments=True),
+                                               mock.call({'name': 'item3'}, None, include_category=False, include_comments=True)])
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
                                                        'formatted_row_3'], title='Recently Completed', quiet=False)
@@ -388,8 +389,8 @@ class TestShowDefaultList(unittest.TestCase):
         self.mock_parse_options.return_value = {'categories': [{'name': 'type A'},
                                                                {'name': 'type B'}]}
 
-        args = shlex.split("list -c test_guid")
-        show(args)
+        args = shlex.split("test_guid")
+        categories(args)
 
         self.mock_display_shopping_list_categories.assert_called_once_with('test_guid')
 
@@ -398,8 +399,8 @@ class TestShowDefaultList(unittest.TestCase):
                                                                {'name': 'type B'}]}
         self.mock_display_shopping_list_categories.side_effect = VittlifyError('Got an error')
 
-        args = shlex.split("list -c test_guid")
-        show(args)
+        args = shlex.split("test_guid")
+        categories(args)
 
         self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
         self.mock_display_shopping_list_categories.assert_called_once_with('test_guid')
