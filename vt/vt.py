@@ -195,11 +195,11 @@ def categorize(args):
     category_name = args.pop(0).lower()
 
     try:
-        categorize_item(guid, category_name)
+        item = categorize_item(guid, category_name)
+        print(Color('Set item {autoblue}%s{/autoblue} to category {autoblue}%s{/autoblue}' % (item['name'], category_name.title())))
     except VittlifyError as e:
         print(Color("{autored}%s{/autored}" % e))
 
-    print(Color('Set item {autoblue}%s{/autoblue} to category {autoblue}%s{/autoblue}' % (guid, category_name.title())))
 
 def run(args):
     try:
