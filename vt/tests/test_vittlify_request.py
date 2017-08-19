@@ -317,7 +317,7 @@ class TestModifyItem(unittest.TestCase):
         self.USERNAME_patcher.stop()
         self._send_request_patcher.stop()
 
-    def test_no_append(self):
+    def test_default(self):
         test_guid = 'test_guid'
         comments = 'test_comments'
         expected = self.mock_send_request.return_value
@@ -327,7 +327,8 @@ class TestModifyItem(unittest.TestCase):
         self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'modify',
                                                                'guid': test_guid,
                                                                'comments': comments,
-                                                               'append': False})
+                                                               'append': False,
+                                                               'delete': False})
 
     def test_append(self):
         test_guid = 'test_guid'
@@ -339,7 +340,21 @@ class TestModifyItem(unittest.TestCase):
         self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'modify',
                                                                'guid': test_guid,
                                                                'comments': comments,
-                                                               'append': True})
+                                                               'append': True,
+                                                               'delete': False})
+
+    def test_delete(self):
+        test_guid = 'test_guid'
+        comments = 'test_comments'
+        expected = self.mock_send_request.return_value
+        actual = modify_item(test_guid, comments, delete=True)
+
+        self.assertEqual(expected, actual)
+        self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'modify',
+                                                               'guid': test_guid,
+                                                               'comments': comments,
+                                                               'append': False,
+                                                               'delete': True})
 
 class TestAddItem(unittest.TestCase):
     def setUp(self):

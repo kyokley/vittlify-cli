@@ -321,6 +321,19 @@ class TestParseOptions(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
+    def test_delete(self):
+        raw_options = ['-d']
+        expected = {'delete': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = ['--delete']
+        expected = {'delete': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
 class TestApplyStrikethrough(unittest.TestCase):
     def test_plain_string(self):
         test_str = 'string'

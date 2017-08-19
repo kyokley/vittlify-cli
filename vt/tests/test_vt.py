@@ -849,3 +849,5 @@ class TestDisplayShoppingListCategories(unittest.TestCase):
         display_shopping_list_categories('test_guid')
         self.mock_print_table.assert_called_once_with([['type A'], ['type B']],
                                                       title='test_list')
+
+

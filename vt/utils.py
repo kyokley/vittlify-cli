@@ -101,6 +101,8 @@ def parse_options(raw_options):
                 options['include_category'] = True
             elif arg == '--append':
                 options['append'] = True
+            elif arg == '--delete':
+                options['delete'] = True
         elif arg.startswith('-'):
             if 'e' in arg:
                 options['extended'] = True
@@ -116,5 +118,8 @@ def parse_options(raw_options):
 
             if 'a' in arg:
                 options['append'] = True
+
+            if 'd' in arg:
+                options['delete'] = True
 
     return options
