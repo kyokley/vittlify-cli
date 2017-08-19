@@ -500,11 +500,27 @@ class TestModify(unittest.TestCase):
         self.modify_item_patcher.stop()
         self.display_item_patcher.stop()
 
-    def test_(self):
+    def test_no_options(self):
         args = shlex.split("test_guid this is a comment")
         modify(args)
         self.mock_modify_item.assert_called_once_with('test_guid',
                                                       'this is a comment')
+        self.mock_display_item.assert_called_once_with('test_guid')
+
+    def test_with_short_options(self):
+        args = shlex.split("test_guid -a this is a comment")
+        modify(args)
+        self.mock_modify_item.assert_called_once_with('test_guid',
+                                                      'this is a comment',
+                                                      append=True)
+        self.mock_display_item.assert_called_once_with('test_guid')
+
+    def test_with_options(self):
+        args = shlex.split("test_guid --append this is a comment")
+        modify(args)
+        self.mock_modify_item.assert_called_once_with('test_guid',
+                                                      'this is a comment',
+                                                      append=True)
         self.mock_display_item.assert_called_once_with('test_guid')
 
 class TestAddDefaultList(unittest.TestCase):

@@ -99,6 +99,8 @@ def parse_options(raw_options):
                 options['unfinished'] = True
             elif arg == '--categories':
                 options['include_category'] = True
+            elif arg == '--append':
+                options['append'] = True
         elif arg.startswith('-'):
             if 'e' in arg:
                 options['extended'] = True
@@ -111,5 +113,8 @@ def parse_options(raw_options):
 
             if 'c' in arg:
                 options['include_category'] = True
+
+            if 'a' in arg:
+                options['append'] = True
 
     return options

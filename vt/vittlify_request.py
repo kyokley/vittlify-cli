@@ -94,10 +94,11 @@ def complete_item(guid, uncomplete=False):
             }
     return _send_request('PUT', data)
 
-def modify_item(guid, comments):
+def modify_item(guid, comments, append=False):
     data = {'endpoint': 'modify',
             'guid': guid,
-            'comments': comments}
+            'comments': comments,
+            'append': append}
     return _send_request('PUT', data)
 
 def add_item(guid, name, comments=''):

@@ -149,9 +149,11 @@ def complete(args, uncomplete=False):
             print(Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name']))
 
 def modify(args):
+    options = parse_options(args)
     guid = args.pop(0).lower()
-    comments = ' '.join(args)
-    modify_item(guid, comments)
+
+    comments = ' '.join([arg for arg in args if not arg.startswith('-') or ' ' in arg])
+    modify_item(guid, comments, **options)
     display_item(guid)
 
 def add(args):

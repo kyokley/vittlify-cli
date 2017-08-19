@@ -296,6 +296,31 @@ class TestParseOptions(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
+    def test_append(self):
+        raw_options = ['asdf', '-a']
+        expected = {'append': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = ['-a','asdf']
+        expected = {'append': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = ['asdf', '--append']
+        expected = {'append': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
+        raw_options = [ '--append','asdf']
+        expected = {'append': True}
+        actual = parse_options(raw_options)
+
+        self.assertEqual(expected, actual)
+
 class TestApplyStrikethrough(unittest.TestCase):
     def test_plain_string(self):
         test_str = 'string'
