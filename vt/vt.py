@@ -27,6 +27,7 @@ from .utils import (print_table,
 from .help import (GENERAL_HELP,
                    LISTS_HELP,
                    LIST_HELP,
+                   DONE_HELP,
                    )
 
 SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
@@ -213,6 +214,8 @@ def help(args):
         print(LISTS_HELP)
     elif args[0].lower() == 'list':
         print(LIST_HELP)
+    elif args[0].lower() == 'done':
+        print(DONE_HELP)
     else:
         print(GENERAL_HELP)
 

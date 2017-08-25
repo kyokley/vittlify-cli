@@ -50,5 +50,8 @@ Options:
 
 DONE_HELP = '''
 Usage:
-    vt done [GUID]
+    vt done GUID ...
+
+Description:
+    Mark an item done.
 '''
