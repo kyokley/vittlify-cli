@@ -24,6 +24,10 @@ from .utils import (print_table,
                     parse_options,
                     apply_strikethrough,
                     )
+from .help import (GENERAL_HELP,
+                   LISTS_HELP,
+                   LIST_HELP,
+                   )
 
 SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
 DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
@@ -202,6 +206,15 @@ def categorize(args):
     except VittlifyError as e:
         print(Color("{autored}%s{/autored}" % e))
 
+def help(args):
+    if not args:
+        print(GENERAL_HELP)
+    elif args[0].lower() == 'lists':
+        print(LISTS_HELP)
+    elif args[0].lower() == 'list':
+        print(LIST_HELP)
+    else:
+        print(GENERAL_HELP)
 
 def run(args):
     try:
@@ -221,6 +234,10 @@ def run(args):
             categories(args[1:])
         elif args[0].lower() in ('categorize', 'label'):
             categorize(args[1:])
+        elif args[0].lower() in ('help',):
+            help(args[1:])
+        else:
+            print(GENERAL_HELP)
     except IndexError:
         print(Color('{autored}Incorrect number of arguments provided{/autored}'))
         if SHOW_TRACEBACK:
