@@ -265,6 +265,8 @@ def run(args):
         print(Color('{autored}Incorrect number of arguments provided{/autored}'))
         if SHOW_TRACEBACK:
             raise
+        else:
+            print(GENERAL_HELP)
     except requests.exceptions.ConnectionError:
         print(Color('{autored}Unable to connect to Vittlify instance at %s{/autored}' % VITTLIFY_URL))
         if PROXY:
