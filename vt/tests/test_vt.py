@@ -17,6 +17,7 @@ from vt.vt import (display_shopping_list,
                    move,
                    run,
                    categories,
+                   help,
                    )
 
 from vt.utils import VittlifyError
@@ -637,6 +638,9 @@ class TestRun(unittest.TestCase):
         self.VITTLIFY_URL_patcher = mock.patch('vt.vt.VITTLIFY_URL', 'vittlify_url')
         self.VITTLIFY_URL_patcher.start()
 
+        self.help_patcher = mock.patch('vt.vt.help')
+        self.mock_help = self.help_patcher.start()
+
     def tearDown(self):
         self.show_patcher.stop()
         self.complete_patcher.stop()
@@ -647,6 +651,7 @@ class TestRun(unittest.TestCase):
         self.SHOW_TRACEBACK_patcher.stop()
         self.PROXY_patcher.stop()
         self.VITTLIFY_URL_patcher.stop()
+        self.help_patcher.stop()
 
     def test_list(self):
         test_args = shlex.split('list test_guid')
@@ -656,6 +661,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_lists(self):
         test_args = shlex.split('lists')
@@ -665,6 +671,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_item(self):
         test_args = shlex.split('item test_guid')
@@ -674,6 +681,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_show(self):
         test_args = shlex.split('show test_guid')
@@ -683,6 +691,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_done(self):
         test_args = shlex.split('done test_guid')
@@ -693,6 +702,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_complete(self):
         test_args = shlex.split('complete test_guid')
@@ -703,6 +713,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_undone(self):
         test_args = shlex.split('undone test_guid')
@@ -713,6 +724,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_uncomplete(self):
         test_args = shlex.split('uncomplete test_guid')
@@ -723,6 +735,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_modify(self):
         test_args = shlex.split("modify test_guid 'these are comments'")
@@ -733,6 +746,7 @@ class TestRun(unittest.TestCase):
         self.mock_modify.assert_called_once_with(expected)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_edit(self):
         test_args = shlex.split("edit test_guid 'these are comments'")
@@ -743,6 +757,7 @@ class TestRun(unittest.TestCase):
         self.mock_modify.assert_called_once_with(expected)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_comment(self):
         test_args = shlex.split("comment test_guid 'these are comments'")
@@ -753,6 +768,7 @@ class TestRun(unittest.TestCase):
         self.mock_modify.assert_called_once_with(expected)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_comments(self):
         test_args = shlex.split("comments test_guid 'these are comments'")
@@ -763,6 +779,7 @@ class TestRun(unittest.TestCase):
         self.mock_modify.assert_called_once_with(expected)
         self.assertFalse(self.mock_add.called)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_add(self):
         test_args = shlex.split("add 'this is a new item'")
@@ -773,6 +790,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_modify.called)
         self.mock_add.assert_called_once_with(expected)
         self.assertFalse(self.mock_move.called)
+        self.assertFalse(self.mock_help.called)
 
     def test_move(self):
         test_args = shlex.split("move old_guid new_guid")
@@ -782,6 +800,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_complete.called)
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_help.called)
         self.mock_move.assert_called_once_with(expected)
 
     def test_mv(self):
@@ -792,6 +811,7 @@ class TestRun(unittest.TestCase):
         self.assertFalse(self.mock_complete.called)
         self.assertFalse(self.mock_modify.called)
         self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_help.called)
         self.mock_move.assert_called_once_with(expected)
 
     def test_index_error(self):
@@ -814,6 +834,18 @@ class TestRun(unittest.TestCase):
         test_args = shlex.split("add 'this is a new item'")
         run(test_args)
         self.mock_Color.assert_called_once_with('{autored}Server responded with 500 Message{/autored}')
+
+    def test_help(self):
+        test_args = shlex.split("help command")
+        expected = ['command']
+        run(test_args)
+        self.assertFalse(self.mock_show.called)
+        self.assertFalse(self.mock_complete.called)
+        self.assertFalse(self.mock_modify.called)
+        self.assertFalse(self.mock_add.called)
+        self.assertFalse(self.mock_move.called)
+        self.mock_help.assert_called_once_with(expected)
+
 
 class TestDisplayShoppingListCategories(unittest.TestCase):
     def setUp(self):
@@ -850,4 +882,144 @@ class TestDisplayShoppingListCategories(unittest.TestCase):
         self.mock_print_table.assert_called_once_with([['type A'], ['type B']],
                                                       title='test_list')
 
+class TestHelp(unittest.TestCase):
+    def setUp(self):
+        self.general_help_patcher = mock.patch('vt.vt.GENERAL_HELP')
+        self.mock_general_help = self.general_help_patcher.start()
 
+        self.lists_help_patcher = mock.patch('vt.vt.LISTS_HELP')
+        self.mock_lists_help = self.lists_help_patcher.start()
+
+        self.list_help_patcher = mock.patch('vt.vt.LIST_HELP')
+        self.mock_list_help = self.list_help_patcher.start()
+
+        self.done_help_patcher = mock.patch('vt.vt.DONE_HELP')
+        self.mock_done_help = self.done_help_patcher.start()
+
+        self.undone_help_patcher = mock.patch('vt.vt.UNDONE_HELP')
+        self.mock_undone_help = self.undone_help_patcher.start()
+
+        self.comment_help_patcher = mock.patch('vt.vt.COMMENT_HELP')
+        self.mock_comment_help = self.comment_help_patcher.start()
+
+        self.move_help_patcher = mock.patch('vt.vt.MOVE_HELP')
+        self.mock_move_help = self.move_help_patcher.start()
+
+        self.categories_help_patcher = mock.patch('vt.vt.CATEGORIES_HELP')
+        self.mock_categories_help = self.categories_help_patcher.start()
+
+        self.categorize_help_patcher = mock.patch('vt.vt.CATEGORIZE_HELP')
+        self.mock_categorize_help = self.categorize_help_patcher.start()
+
+    def tearDown(self):
+        self.general_help_patcher.stop()
+        self.lists_help_patcher.stop()
+        self.list_help_patcher.stop()
+        self.done_help_patcher.stop()
+        self.undone_help_patcher.stop()
+        self.comment_help_patcher.stop()
+        self.move_help_patcher.stop()
+        self.categories_help_patcher.stop()
+        self.categorize_help_patcher.stop()
+
+    def test_no_args(self):
+        expected = self.mock_general_help
+        actual = help([])
+
+        self.assertEqual(expected, actual)
+
+    def test_unknown_command(self):
+        expected = self.mock_general_help
+        actual = help(['unknown command'])
+
+        self.assertEqual(expected, actual)
+
+    def test_lists(self):
+        expected = self.mock_lists_help
+        actual = help(['lists'])
+
+        self.assertEqual(expected, actual)
+
+    def test_list(self):
+        expected = self.mock_list_help
+        actual = help(['list'])
+
+        self.assertEqual(expected, actual)
+
+    def test_done(self):
+        expected = self.mock_done_help
+        actual = help(['done'])
+
+        self.assertEqual(expected, actual)
+
+    def test_complete(self):
+        expected = self.mock_done_help
+        actual = help(['complete'])
+
+        self.assertEqual(expected, actual)
+
+    def test_undone(self):
+        expected = self.mock_undone_help
+        actual = help(['undone'])
+
+        self.assertEqual(expected, actual)
+
+    def test_uncomplete(self):
+        expected = self.mock_undone_help
+        actual = help(['uncomplete'])
+
+        self.assertEqual(expected, actual)
+
+    def test_comment(self):
+        expected = self.mock_comment_help
+        actual = help(['comment'])
+
+        self.assertEqual(expected, actual)
+
+    def test_modify(self):
+        expected = self.mock_comment_help
+        actual = help(['modify'])
+
+        self.assertEqual(expected, actual)
+
+    def test_comments(self):
+        expected = self.mock_comment_help
+        actual = help(['comments'])
+
+        self.assertEqual(expected, actual)
+
+    def test_edit(self):
+        expected = self.mock_comment_help
+        actual = help(['edit'])
+
+        self.assertEqual(expected, actual)
+
+    def test_move(self):
+        expected = self.mock_move_help
+        actual = help(['move'])
+
+        self.assertEqual(expected, actual)
+
+    def test_mv(self):
+        expected = self.mock_move_help
+        actual = help(['mv'])
+
+        self.assertEqual(expected, actual)
+
+    def test_categories(self):
+        expected = self.mock_categories_help
+        actual = help(['categories'])
+
+        self.assertEqual(expected, actual)
+
+    def test_categorize(self):
+        expected = self.mock_categorize_help
+        actual = help(['categorize'])
+
+        self.assertEqual(expected, actual)
+
+    def test_label(self):
+        expected = self.mock_categorize_help
+        actual = help(['label'])
+
+        self.assertEqual(expected, actual)
