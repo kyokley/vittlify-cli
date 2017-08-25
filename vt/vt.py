@@ -140,13 +140,14 @@ def complete(args, uncomplete=False):
     if not arg_count:
         display_shopping_list(mode=COMPLETED, **options)
     else:
-        guid = args.pop(0)
-        resp = complete_item(guid, uncomplete=uncomplete)
+        while args:
+            guid = args.pop(0)
+            resp = complete_item(guid, uncomplete=uncomplete)
 
-        if not uncomplete:
-            print(Color('Marked {automagenta}%s{/automagenta} as done.' % apply_strikethrough(resp['name'])))
-        else:
-            print(Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name']))
+            if not uncomplete:
+                print(Color('Marked {automagenta}%s{/automagenta} as done.' % apply_strikethrough(resp['name'])))
+            else:
+                print(Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name']))
 
 def modify(args):
     options = parse_options(args)
