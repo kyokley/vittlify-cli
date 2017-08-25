@@ -50,8 +50,33 @@ Options:
 
 DONE_HELP = '''
 Usage:
-    vt done GUID ...
+    vt done [GUID] ...
+    vt complete [GUID] ...
 
 Description:
-    Mark an item done.
+    Mark an item done. When run without a GUID, display all recently completed items.
+'''
+
+UNDONE_HELP = '''
+Usage:
+    vt undone [GUID] ...
+    vt uncomplete [GUID] ...
+
+Description:
+    Mark an item undone. When run without a GUID, display all recently completed items.
+'''
+
+COMMENT_HELP = '''
+Usage:
+    vt modify GUID [options] [comment]
+    vt comment GUID [options] [comment]
+    vt comments GUID [options] [comment]
+    vt edit GUID [options] [comment]
+
+Description:
+    Add a comment to the specified item. No comment should be provided when using the -d flag.
+
+Options:
+    -a, --append       Append comment rather than overwriting.
+    -d, --delete       Remove comment from item.
 '''

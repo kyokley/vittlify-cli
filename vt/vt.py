@@ -28,6 +28,8 @@ from .help import (GENERAL_HELP,
                    LISTS_HELP,
                    LIST_HELP,
                    DONE_HELP,
+                   UNDONE_HELP,
+                   COMMENT_HELP,
                    )
 
 SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
@@ -214,8 +216,12 @@ def help(args):
         print(LISTS_HELP)
     elif args[0].lower() == 'list':
         print(LIST_HELP)
-    elif args[0].lower() == 'done':
+    elif args[0].lower() in ('done', 'complete'):
         print(DONE_HELP)
+    elif args[0].lower() in ('undone', 'uncomplete'):
+        print(UNDONE_HELP)
+    elif args[0].lower() in ('modify', 'edit', 'comment', 'comments'):
+        print(COMMENT_HELP)
     else:
         print(GENERAL_HELP)
 
