@@ -30,6 +30,9 @@ from .help import (GENERAL_HELP,
                    DONE_HELP,
                    UNDONE_HELP,
                    COMMENT_HELP,
+                   MOVE_HELP,
+                   CATEGORIES_HELP,
+                   CATEGORIZE_HELP,
                    )
 
 SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
@@ -210,20 +213,30 @@ def categorize(args):
         print(Color("{autored}%s{/autored}" % e))
 
 def help(args):
+    help_str = ''
+
     if not args:
-        print(GENERAL_HELP)
+        help_str = GENERAL_HELP
     elif args[0].lower() == 'lists':
-        print(LISTS_HELP)
+        help_str = LISTS_HELP
     elif args[0].lower() == 'list':
-        print(LIST_HELP)
+        help_str = LIST_HELP
     elif args[0].lower() in ('done', 'complete'):
-        print(DONE_HELP)
+        help_str = DONE_HELP
     elif args[0].lower() in ('undone', 'uncomplete'):
-        print(UNDONE_HELP)
+        help_str = UNDONE_HELP
     elif args[0].lower() in ('modify', 'edit', 'comment', 'comments'):
-        print(COMMENT_HELP)
+        help_str = COMMENT_HELP
+    elif args[0].lower() in ('move', 'mv'):
+        help_str = MOVE_HELP
+    elif args[0].lower() in ('categories',):
+        help_str = CATEGORIES_HELP
+    elif args[0].lower() in ('categorize', 'label'):
+        help_str = CATEGORIZE_HELP
     else:
-        print(GENERAL_HELP)
+        help_str = GENERAL_HELP
+
+    return help_str
 
 def run(args):
     try:
@@ -244,7 +257,7 @@ def run(args):
         elif args[0].lower() in ('categorize', 'label'):
             categorize(args[1:])
         elif args[0].lower() in ('help',):
-            help(args[1:])
+            print(help(args[1:]))
         else:
             print(GENERAL_HELP)
     except IndexError:

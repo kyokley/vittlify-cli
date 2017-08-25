@@ -80,3 +80,39 @@ Options:
     -a, --append       Append comment rather than overwriting.
     -d, --delete       Remove comment from item.
 '''
+
+ADD_HELP = '''
+Usage:
+    vt add [GUID] item
+
+Description:
+    Create a new item. GUID is the unique identifier for the list the item will be placed on.
+    When GUID is not provided, use the default list defined in VT_DEFAULT_LIST environment variable.
+'''
+
+MOVE_HELP = '''
+Usage:
+    vt move ITEM LIST
+    vt mv ITEM LIST
+
+Description:
+    Move item to a new list where ITEM is the guid of the item and LIST is the guid of the new list.
+'''
+
+CATEGORIES_HELP = '''
+Usage:
+    vt categories [GUID]
+
+Description:
+    Display the available categories for a list. GUID is the unique identifier for a list.
+    When GUID is not provided, use the default list defined in VT_DEFAULT_LIST environment variable.
+'''
+
+CATEGORIZE_HELP = '''
+Usage:
+    vt categorize GUID CATEGORY
+    vt label GUID CATEGORY
+
+Description:
+    Assign CATEGORY to the item specified by GUID.
+'''
