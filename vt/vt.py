@@ -5,19 +5,19 @@ import os
 
 from colorclass import Color
 from .vittlify_request import (get_all_shopping_lists,
-                              get_shopping_list_info,
-                              get_shopping_list_items,
-                              get_all_shopping_list_items,
-                              get_item,
-                              get_completed,
-                              complete_item,
-                              modify_item,
-                              add_item,
-                              move_item,
-                              categorize_item,
-                              VITTLIFY_URL,
-                              PROXY,
-                              )
+                               get_shopping_list_info,
+                               get_shopping_list_items,
+                               get_all_shopping_list_items,
+                               get_item,
+                               get_completed,
+                               complete_item,
+                               modify_item,
+                               add_item,
+                               move_item,
+                               categorize_item,
+                               VITTLIFY_URL,
+                               PROXY,
+                               )
 from .utils import (print_table,
                     format_row,
                     VittlifyError,
@@ -41,6 +41,7 @@ DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
 (COMPLETED,
  NOT_COMPLETED,
  ALL) = range(3)
+
 
 def display_shopping_list(guid=None,
                           extended=False,
@@ -72,6 +73,7 @@ def display_shopping_list(guid=None,
 
     print_table(data, title=title, quiet=quiet)
 
+
 def display_item(guid):
     item = get_item(guid)
     print_table([format_row(item, None, include_comments=True)])
@@ -91,7 +93,9 @@ def display_shopping_list_categories(guid):
     data = []
 
     if not list_categories:
-        print(Color("{autored}No categories found for %s{/autored}." % shopping_list['name']))
+        print(
+            Color(
+                "{autored}No categories found for %s{/autored}." % shopping_list['name']))
     else:
         for category in list_categories:
             data.append([category['name']])
