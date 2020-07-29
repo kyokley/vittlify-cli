@@ -10,8 +10,10 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from colorclass import Color
 from terminaltables import AsciiTable, BorderlessTable
 
+
 class VittlifyError(Exception):
     pass
+
 
 def print_table(data, title=None, quiet=False):
     if quiet:
@@ -29,9 +31,11 @@ def print_table(data, title=None, quiet=False):
     else:
         print(Color("{autored}No data found.{/autored}"))
 
+
 def apply_strikethrough(string):
     string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)', r'{strike}\1{/strike}', string)
     return string
+
 
 def format_row(item,
                shopping_list=None,
@@ -69,6 +73,7 @@ def format_row(item,
         row.append(comments)
     return row
 
+
 def get_encoded_signature(message):
     PRIVATE_KEY_FILENAME = os.environ.get('VT_PRIVATE_KEY') or os.path.expanduser('~/.ssh/id_rsa')
 
@@ -85,6 +90,7 @@ def get_encoded_signature(message):
                                         salt_length=padding.PSS.MAX_LENGTH),
                             hashes.SHA512())
     return base64.b64encode(signature)
+
 
 def parse_options(raw_options):
     options = {}

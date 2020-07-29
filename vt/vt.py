@@ -78,6 +78,7 @@ def display_item(guid):
     item = get_item(guid)
     print_table([format_row(item, None, include_comments=True)])
 
+
 def display_all_shopping_lists():
     shopping_lists = get_all_shopping_lists()
     data = []
@@ -85,6 +86,7 @@ def display_all_shopping_lists():
         data.append(format_row(shopping_list, None))
 
     print_table(data, title='All Lists')
+
 
 def display_shopping_list_categories(guid):
     shopping_list = get_shopping_list_info(guid)
@@ -100,6 +102,7 @@ def display_shopping_list_categories(guid):
         for category in list_categories:
             data.append([category['name']])
         print_table(data, title=shopping_list['name'])
+
 
 def show(args):
     cmd = args.pop(0).lower()
@@ -142,6 +145,7 @@ def show(args):
         except VittlifyError as e:
             print(Color("{autored}%s{/autored}" % e))
 
+
 def complete(args, uncomplete=False):
     raw_options = args
     options = parse_options(raw_options)
@@ -162,6 +166,7 @@ def complete(args, uncomplete=False):
                 print(Color('Marked {automagenta}%s{/automagenta} as done.' % apply_strikethrough(resp['name'])))
             else:
                 print(Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name']))
+
 
 def modify(args):
     options = parse_options(args)
@@ -184,11 +189,13 @@ def add(args):
     item = add_item(guid, name)
     print_table([format_row(item)])
 
+
 def move(args):
     guid = args.pop(0).lower()
     to_guid = args.pop(0).lower()
     move_item(guid, to_guid)
     print(Color('Moved item {autoblue}%s{/autoblue} to list {autoblue}%s{/autoblue}' % (guid, to_guid)))
+
 
 def categories(args):
     guid = args.pop(0).lower() if len(args) > 0 else None
@@ -204,6 +211,7 @@ def categories(args):
     except VittlifyError as e:
         print(Color("{autored}%s{/autored}" % e))
 
+
 def categorize(args):
     if len(args) != 2:
         raise IndexError('Incorrect number of arguments. Expected 2, got %s' % len(args))
@@ -216,6 +224,7 @@ def categorize(args):
         print(Color('Set item {autoblue}%s{/autoblue} to category {autoblue}%s{/autoblue}' % (item['name'], category_name.title())))
     except VittlifyError as e:
         print(Color("{autored}%s{/autored}" % e))
+
 
 def help(args):
     help_str = ''
@@ -242,6 +251,7 @@ def help(args):
         help_str = GENERAL_HELP
 
     return help_str
+
 
 def run(args):
     try:
@@ -284,8 +294,10 @@ def run(args):
     except VittlifyError as e:
         print(Color('{autored}%s{/autored}' % e))
 
+
 def main():
     run(sys.argv[1:])
+
 
 if __name__ == '__main__':
     main()
