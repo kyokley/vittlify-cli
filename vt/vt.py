@@ -3,7 +3,8 @@ import sys
 import requests
 import os
 
-from colorclass import Color
+from enum import Enum
+from blessings import Terminal
 from .vittlify_request import (get_all_shopping_lists,
                                get_shopping_list_info,
                                get_shopping_list_items,
@@ -35,17 +36,34 @@ from .help import (GENERAL_HELP,
                    CATEGORIZE_HELP,
                    )
 
+term = Terminal()
+
 SHOW_TRACEBACK = os.environ.get('VT_SHOW_TRACEBACK', 'false').lower() == 'true'
 DEFAULT_LIST = os.environ.get('VT_DEFAULT_LIST', '')
 
-(COMPLETED,
- NOT_COMPLETED,
- ALL) = range(3)
+
+class StrEnum(str, Enum):
+    @classmethod
+    def from_string(cls, str_type):
+        if str_type is not None:
+            for enum_type in cls:
+                if enum_type.value.lower() == str_type.strip().lower():
+                    return enum_type
+        return None
+
+    def __str__(self):
+        return self.value
+
+
+class Status(StrEnum):
+    COMPLETED = 'COMPLETED'
+    NOT_COMPLETED = 'NOT_COMPLETED'
+    ALL = 'ALL'
 
 
 def display_shopping_list(guid=None,
                           extended=False,
-                          mode=ALL,
+                          mode=Status.ALL,
                           quiet=False,
                           unfinished=False,
                           include_category=False,
@@ -53,14 +71,14 @@ def display_shopping_list(guid=None,
     data = []
 
     shopping_list = None
-    if mode == NOT_COMPLETED or unfinished:
+    if mode == Status.NOT_COMPLETED or unfinished:
         shopping_list = get_shopping_list_info(guid)
         title = shopping_list['name']
         items = get_shopping_list_items(guid)
-    elif mode == COMPLETED:
+    elif mode == Status.COMPLETED:
         items = get_completed()
         title = 'Recently Completed'
-    elif mode == ALL:
+    elif mode == Status.ALL:
         shopping_list = get_shopping_list_info(guid)
         title = shopping_list['name']
         items = get_all_shopping_list_items(guid)
@@ -96,8 +114,8 @@ def display_shopping_list_categories(guid):
 
     if not list_categories:
         print(
-            Color(
-                "{autored}No categories found for %s{/autored}." % shopping_list['name']))
+            term.red(
+                f"No categories found for {shopping_list['name']}."))
     else:
         for category in list_categories:
             data.append([category['name']])
@@ -127,13 +145,13 @@ def show(args):
         try:
             display_shopping_list(guid=guid, **options)
         except VittlifyError as e:
-            print(Color("{autored}%s{/autored}" % e))
+            print(term.red(f"{e}"))
 
     elif cmd == 'lists':
         try:
             display_all_shopping_lists()
         except VittlifyError as e:
-            print(Color("{autored}%s{/autored}" % e))
+            print(term.red(f"{e}"))
     elif cmd in ('show', 'item'):
         guid = raw_options.pop(0)
 
@@ -143,7 +161,7 @@ def show(args):
         try:
             display_item(guid)
         except VittlifyError as e:
-            print(Color("{autored}%s{/autored}" % e))
+            print(term.red(f"{e}"))
 
 
 def complete(args, uncomplete=False):
@@ -156,25 +174,30 @@ def complete(args, uncomplete=False):
             arg_count += 1
 
     if not arg_count:
-        display_shopping_list(mode=COMPLETED, **options)
+        display_shopping_list(mode=Status.COMPLETED, **options)
     else:
         while args:
             guid = args.pop(0)
             resp = complete_item(guid, uncomplete=uncomplete)
 
             if not uncomplete:
-                print(Color('Marked {automagenta}%s{/automagenta} as done.' % apply_strikethrough(resp['name'])))
+                print(
+                    f'Marked {term.magenta}{apply_strikethrough(resp["name"])}{term.normal} as done.')
             else:
-                print(Color('Marked {automagenta}%s{/automagenta} undone.' % resp['name']))
+                print(
+                    f'Marked {term.magenta}{resp["name"]}{term.normal} undone.'
+                )
 
 
 def modify(args):
     options = parse_options(args)
     guid = args.pop(0).lower()
 
-    comments = ' '.join([arg for arg in args if not arg.startswith('-') or ' ' in arg])
+    comments = ' '.join(
+        [arg for arg in args if not arg.startswith('-') or ' ' in arg])
     modify_item(guid, comments, **options)
     display_item(guid)
+
 
 def add(args):
     if len(args) == 1:
@@ -194,7 +217,8 @@ def move(args):
     guid = args.pop(0).lower()
     to_guid = args.pop(0).lower()
     move_item(guid, to_guid)
-    print(Color('Moved item {autoblue}%s{/autoblue} to list {autoblue}%s{/autoblue}' % (guid, to_guid)))
+    print(
+        f'Moved item {term.blue}{guid}{term.normal} to list {term.blue}{to_guid}{term.normal}')
 
 
 def categories(args):
@@ -209,7 +233,7 @@ def categories(args):
     try:
         display_shopping_list_categories(guid)
     except VittlifyError as e:
-        print(Color("{autored}%s{/autored}" % e))
+        print(term.red(f"{e}"))
 
 
 def categorize(args):
@@ -221,9 +245,9 @@ def categorize(args):
 
     try:
         item = categorize_item(guid, category_name)
-        print(Color('Set item {autoblue}%s{/autoblue} to category {autoblue}%s{/autoblue}' % (item['name'], category_name.title())))
+        print(f'Set item {term.blue}{item["name"]}{term.normal} to category {term.blue}{category_name.title()}{term.normal}')
     except VittlifyError as e:
-        print(Color("{autored}%s{/autored}" % e))
+        print(term.red(f"{e}"))
 
 
 def help(args):
@@ -276,23 +300,23 @@ def run(args):
         else:
             print(GENERAL_HELP)
     except IndexError:
-        print(Color('{autored}Incorrect number of arguments provided{/autored}'))
+        print(term.red('Incorrect number of arguments provided'))
         if SHOW_TRACEBACK:
             raise
         else:
             print(GENERAL_HELP)
     except requests.exceptions.ConnectionError:
-        print(Color('{autored}Unable to connect to Vittlify instance at %s{/autored}' % VITTLIFY_URL))
+        print(term.red(f'Unable to connect to Vittlify instance at {VITTLIFY_URL}'))
         if PROXY:
-            print(Color('{autored}Attempted to use proxy at %s{/autored}' % PROXY))
+            print(term.red(f'Attempted to use proxy at {PROXY}'))
         if SHOW_TRACEBACK:
             raise
     except requests.exceptions.HTTPError as e:
-        print(Color('{autored}Server responded with %s{/autored}' % e))
+        print(term.red(f'Server responded with {e}'))
         if SHOW_TRACEBACK:
             raise
     except VittlifyError as e:
-        print(Color('{autored}%s{/autored}' % e))
+        print(term.red(f"{e}"))
 
 
 def main():

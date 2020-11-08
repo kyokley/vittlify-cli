@@ -91,14 +91,6 @@ version = "0.4.4"
 
 [[package]]
 category = "main"
-description = "Colorful worry-free console applications for Linux, Mac OS X, and Windows."
-name = "colorclass"
-optional = false
-python-versions = "*"
-version = "2.2.0"
-
-[[package]]
-category = "main"
 description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
 name = "cryptography"
 optional = false
@@ -374,7 +366,7 @@ python-versions = "*"
 version = "0.3"
 
 [metadata]
-content-hash = "508294d83c4f131734c0c8c9e13cd30e484a4c32e5e8b9322d3577349100ec06"
+content-hash = "413be907f36dc54d9f27f0855b286e48f3928008e726bc5d4375fd84f85eb4ae"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -445,9 +437,6 @@ chardet = [
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
-]
-colorclass = [
-    {file = "colorclass-2.2.0.tar.gz", hash = "sha256:b05c2a348dfc1aff2d502527d78a5b7b7e2f85da94a96c5081210d8e9ee8e18b"},
 ]
 cryptography = [
     {file = "cryptography-3.2.1-cp27-cp27m-macosx_10_10_x86_64.whl", hash = "sha256:6dc59630ecce8c1f558277ceb212c751d6730bd12c80ea96b4ac65637c4f55e7"},

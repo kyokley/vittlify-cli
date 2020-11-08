@@ -2,14 +2,13 @@ import shlex
 import unittest
 import mock
 import requests
+import pytest
 
 from vt.vt import (display_shopping_list,
                    display_item,
                    display_all_shopping_lists,
                    display_shopping_list_categories,
-                   COMPLETED,
-                   NOT_COMPLETED,
-                   ALL,
+                   Status,
                    show,
                    complete,
                    modify,
@@ -18,9 +17,11 @@ from vt.vt import (display_shopping_list,
                    run,
                    categories,
                    help,
+                   term,
                    )
 
 from vt.utils import VittlifyError
+
 
 class TestDisplayShoppingList(unittest.TestCase):
     def setUp(self):
@@ -68,7 +69,7 @@ class TestDisplayShoppingList(unittest.TestCase):
 
     def test_not_completed(self):
         guid = 'test_guid'
-        display_shopping_list(guid=guid, mode=NOT_COMPLETED)
+        display_shopping_list(guid=guid, mode=Status.NOT_COMPLETED)
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_shopping_list_items.assert_called_once_with(guid)
@@ -81,7 +82,7 @@ class TestDisplayShoppingList(unittest.TestCase):
 
     def test_all(self):
         guid = 'test_guid'
-        display_shopping_list(guid=guid, mode=ALL)
+        display_shopping_list(guid=guid, mode=Status.ALL)
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_all_shopping_list_items.assert_called_once_with(guid)
@@ -94,7 +95,7 @@ class TestDisplayShoppingList(unittest.TestCase):
 
     def test_completed(self):
         guid = 'test_guid'
-        display_shopping_list(guid=guid, mode=COMPLETED)
+        display_shopping_list(guid=guid, mode=Status.COMPLETED)
 
         self.assertFalse(self.mock_get_shopping_list_info.called)
         self.mock_get_completed.assert_called_once_with()
@@ -107,7 +108,7 @@ class TestDisplayShoppingList(unittest.TestCase):
 
     def test_not_completed_extended(self):
         guid = 'test_guid'
-        display_shopping_list(guid=guid, mode=NOT_COMPLETED, extended=True)
+        display_shopping_list(guid=guid, mode=Status.NOT_COMPLETED, extended=True)
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_shopping_list_items.assert_called_once_with(guid)
@@ -120,7 +121,7 @@ class TestDisplayShoppingList(unittest.TestCase):
 
     def test_all_extended(self):
         guid = 'test_guid'
-        display_shopping_list(guid=guid, mode=ALL, extended=True)
+        display_shopping_list(guid=guid, mode=Status.ALL, extended=True)
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_all_shopping_list_items.assert_called_once_with(guid)
@@ -133,7 +134,7 @@ class TestDisplayShoppingList(unittest.TestCase):
 
     def test_completed_extended(self):
         guid = 'test_guid'
-        display_shopping_list(guid=guid, mode=COMPLETED, extended=True)
+        display_shopping_list(guid=guid, mode=Status.COMPLETED, extended=True)
 
         self.assertFalse(self.mock_get_shopping_list_info.called)
         self.mock_get_completed.assert_called_once_with()
@@ -143,6 +144,7 @@ class TestDisplayShoppingList(unittest.TestCase):
         self.mock_print_table.assert_called_once_with(['formatted_row_1',
                                                        'formatted_row_2',
                                                        'formatted_row_3'], title='Recently Completed', quiet=False)
+
 
 class TestDisplayItem(unittest.TestCase):
     def setUp(self):
@@ -284,8 +286,10 @@ class TestShowNoDefaultList(unittest.TestCase):
 
         self.mock_display_item.assert_called_once_with('test_guid')
 
-class TestShowDefaultList(unittest.TestCase):
-    def setUp(self):
+
+class TestShowDefaultList:
+    @pytest.fixture(autouse=True)
+    def setUp(self, mocker):
         self.DEFAULT_LIST_patcher = mock.patch('vt.vt.DEFAULT_LIST', 'default_list')
         self.DEFAULT_LIST_patcher.start()
 
@@ -301,22 +305,20 @@ class TestShowDefaultList(unittest.TestCase):
         self.display_shopping_list_categories_patcher = mock.patch('vt.vt.display_shopping_list_categories')
         self.mock_display_shopping_list_categories = self.display_shopping_list_categories_patcher.start()
 
-        self.Color_patcher = mock.patch('vt.vt.Color')
-        self.mock_Color = self.Color_patcher.start()
+        mocker.patch.object(term, 'red', autospec=True)
 
         self.display_item_patcher = mock.patch('vt.vt.display_item')
         self.mock_display_item = self.display_item_patcher.start()
 
         self.mock_parse_options.return_value = {}
 
-    def tearDown(self):
+        yield
         self.DEFAULT_LIST_patcher.stop()
         self.parse_options_patcher.stop()
         self.display_shopping_list_patcher.stop()
         self.display_all_shopping_lists_patcher.stop()
         self.display_item_patcher.stop()
         self.display_shopping_list_categories_patcher.stop()
-        self.Color_patcher.stop()
 
     def test_list_empty_guid(self):
         args = shlex.split("list ''")
@@ -370,15 +372,13 @@ class TestShowDefaultList(unittest.TestCase):
 
     def test_item_no_guid(self):
         args = shlex.split("item")
-        self.assertRaises(IndexError,
-                          show,
-                          args)
+        with pytest.raises(IndexError):
+            show(args)
 
     def test_item_empty_guid(self):
         args = shlex.split("item ''")
-        self.assertRaises(IndexError,
-                          show,
-                          args)
+        with pytest.raises(IndexError):
+            show(args)
 
     def test_item(self):
         args = shlex.split("item test_guid")
@@ -403,7 +403,7 @@ class TestShowDefaultList(unittest.TestCase):
         args = shlex.split("test_guid")
         categories(args)
 
-        self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
+        term.red.assert_called_once_with('Got an error')
         self.mock_display_shopping_list_categories.assert_called_once_with('test_guid')
 
     def test_display_shopping_list_raises(self):
@@ -412,7 +412,7 @@ class TestShowDefaultList(unittest.TestCase):
         args = shlex.split("list test_guid")
         show(args)
 
-        self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
+        term.red.assert_called_once_with('Got an error')
         self.mock_display_shopping_list.assert_called_once_with(guid='test_guid')
 
     def test_display_item_raises(self):
@@ -421,7 +421,7 @@ class TestShowDefaultList(unittest.TestCase):
         args = shlex.split("show test_guid")
         show(args)
 
-        self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
+        term.red.assert_called_once_with('Got an error')
 
     def test_display_all_shopping_lists_raises(self):
         self.mock_display_all_shopping_lists.side_effect = VittlifyError('Got an error')
@@ -429,16 +429,16 @@ class TestShowDefaultList(unittest.TestCase):
         show(args)
 
         self.mock_display_all_shopping_lists.assert_called_once_with()
-        self.mock_Color.assert_called_once_with('{autored}Got an error{/autored}')
+        term.red.assert_called_once_with('Got an error')
 
 
-class TestComplete(unittest.TestCase):
-    def setUp(self):
+class TestComplete:
+    @pytest.fixture(autouse=True)
+    def setUp(self, mocker):
         self.complete_item_patcher = mock.patch('vt.vt.complete_item')
         self.mock_complete_item = self.complete_item_patcher.start()
 
-        self.Color_patcher = mock.patch('vt.vt.Color')
-        self.mock_Color = self.Color_patcher.start()
+        self.mock_print = mocker.patch('builtins.print')
 
         self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
         self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
@@ -449,9 +449,9 @@ class TestComplete(unittest.TestCase):
         self.mock_complete_item.return_value = {'name': 'test_name'}
         self.mock_apply_strikethrough.return_value = 'struck_through'
 
-    def tearDown(self):
+        yield
+
         self.complete_item_patcher.stop()
-        self.Color_patcher.stop()
         self.apply_strikethrough_patcher.stop()
 
     def test_complete(self):
@@ -461,7 +461,7 @@ class TestComplete(unittest.TestCase):
         self.mock_complete_item.assert_called_once_with('test_guid',
                                                         uncomplete=False)
         self.mock_apply_strikethrough.assert_called_once_with('test_name')
-        self.mock_Color.assert_called_once_with('Marked {automagenta}struck_through{/automagenta} as done.')
+        self.mock_print.assert_called_once_with(f'Marked {term.magenta}struck_through{term.normal} as done.')
 
     def test_uncomplete(self):
         args = shlex.split("test_guid")
@@ -469,25 +469,27 @@ class TestComplete(unittest.TestCase):
 
         self.mock_complete_item.assert_called_once_with('test_guid',
                                                         uncomplete=True)
-        self.mock_Color.assert_called_once_with('Marked {automagenta}test_name{/automagenta} undone.')
+        self.mock_print.assert_called_once_with(f'Marked {term.magenta}test_name{term.normal} undone.')
 
     def test_done_extended(self):
         args = shlex.split("-e")
         complete(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
+        self.mock_display_shopping_list.assert_called_once_with(extended=True,
+                                                                mode=Status.COMPLETED)
 
     def test_completed_no_extended(self):
         args = shlex.split("")
         complete(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(mode=COMPLETED)
+        self.mock_display_shopping_list.assert_called_once_with(mode=Status.COMPLETED)
 
     def test_completed_extended(self):
         args = shlex.split("--extended")
         complete(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=COMPLETED)
+        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=Status.COMPLETED)
+
 
 class TestModify(unittest.TestCase):
     def setUp(self):
@@ -524,6 +526,7 @@ class TestModify(unittest.TestCase):
                                                       append=True)
         self.mock_display_item.assert_called_once_with('test_guid')
 
+
 class TestAddDefaultList(unittest.TestCase):
     def setUp(self):
         self.DEFAULT_LIST_patcher = mock.patch('vt.vt.DEFAULT_LIST', 'default_list')
@@ -558,6 +561,7 @@ class TestAddDefaultList(unittest.TestCase):
         self.mock_format_row.assert_called_once_with(self.mock_add_item.return_value)
         self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
 
+
 class TestAddNoDefaultList(unittest.TestCase):
     def setUp(self):
         self.DEFAULT_LIST_patcher = mock.patch('vt.vt.DEFAULT_LIST', None)
@@ -591,26 +595,28 @@ class TestAddNoDefaultList(unittest.TestCase):
         self.mock_format_row.assert_called_once_with(self.mock_add_item.return_value)
         self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
 
-class TestMove(unittest.TestCase):
-    def setUp(self):
+
+class TestMove:
+    @pytest.fixture(autouse=True)
+    def setUp(self, mocker):
         self.move_item_patcher = mock.patch('vt.vt.move_item')
         self.mock_move_item = self.move_item_patcher.start()
 
-        self.Color_patcher = mock.patch('vt.vt.Color')
-        self.mock_Color = self.Color_patcher.start()
+        self.mock_print = mocker.patch('builtins.print')
 
-    def tearDown(self):
+        yield
         self.move_item_patcher.stop()
-        self.Color_patcher.stop()
 
     def test_(self):
         args = shlex.split('test_guid to_list_guid')
         move(args)
         self.mock_move_item.assert_called_once_with('test_guid', 'to_list_guid')
-        self.mock_Color.assert_called_once_with('Moved item {autoblue}test_guid{/autoblue} to list {autoblue}to_list_guid{/autoblue}')
+        self.mock_print.assert_called_once_with(f'Moved item {term.blue}test_guid{term.normal} to list {term.blue}to_list_guid{term.normal}')
 
-class TestRun(unittest.TestCase):
-    def setUp(self):
+
+class TestRun:
+    @pytest.fixture(autouse=True)
+    def setUp(self, mocker):
         self.show_patcher = mock.patch('vt.vt.show')
         self.mock_show = self.show_patcher.start()
 
@@ -626,8 +632,7 @@ class TestRun(unittest.TestCase):
         self.move_patcher = mock.patch('vt.vt.move')
         self.mock_move = self.move_patcher.start()
 
-        self.Color_patcher = mock.patch('vt.vt.Color')
-        self.mock_Color = self.Color_patcher.start()
+        mocker.patch.object(term, 'red', autospec=True)
 
         self.SHOW_TRACEBACK_patcher = mock.patch('vt.vt.SHOW_TRACEBACK', False)
         self.SHOW_TRACEBACK_patcher.start()
@@ -641,13 +646,12 @@ class TestRun(unittest.TestCase):
         self.help_patcher = mock.patch('vt.vt.help')
         self.mock_help = self.help_patcher.start()
 
-    def tearDown(self):
+        yield
         self.show_patcher.stop()
         self.complete_patcher.stop()
         self.modify_patcher.stop()
         self.add_patcher.stop()
         self.move_patcher.stop()
-        self.Color_patcher.stop()
         self.SHOW_TRACEBACK_patcher.stop()
         self.PROXY_patcher.stop()
         self.VITTLIFY_URL_patcher.stop()
@@ -657,161 +661,161 @@ class TestRun(unittest.TestCase):
         test_args = shlex.split('list test_guid')
         run(test_args)
         self.mock_show.assert_called_once_with(test_args)
-        self.assertFalse(self.mock_complete.called)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_complete.called
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_lists(self):
         test_args = shlex.split('lists')
         run(test_args)
         self.mock_show.assert_called_once_with(test_args)
-        self.assertFalse(self.mock_complete.called)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_complete.called
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_item(self):
         test_args = shlex.split('item test_guid')
         run(test_args)
         self.mock_show.assert_called_once_with(test_args)
-        self.assertFalse(self.mock_complete.called)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_complete.called
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_show(self):
         test_args = shlex.split('show test_guid')
         run(test_args)
         self.mock_show.assert_called_once_with(test_args)
-        self.assertFalse(self.mock_complete.called)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_complete.called
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_done(self):
         test_args = shlex.split('done test_guid')
         expected = ['test_guid']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
+        assert not self.mock_show.called
         self.mock_complete.assert_called_once_with(expected)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_complete(self):
         test_args = shlex.split('complete test_guid')
         expected = ['test_guid']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
+        assert not self.mock_show.called
         self.mock_complete.assert_called_once_with(expected)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_undone(self):
         test_args = shlex.split('undone test_guid')
         expected = ['test_guid']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
+        assert not self.mock_show.called
         self.mock_complete.assert_called_once_with(expected, uncomplete=True)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_uncomplete(self):
         test_args = shlex.split('uncomplete test_guid')
         expected = ['test_guid']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
+        assert not self.mock_show.called
         self.mock_complete.assert_called_once_with(expected, uncomplete=True)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_modify(self):
         test_args = shlex.split("modify test_guid 'these are comments'")
         expected = ['test_guid', 'these are comments']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
-        self.assertFalse(self.mock_complete.called)
+        assert not self.mock_show.called
+        assert not self.mock_complete.called
         self.mock_modify.assert_called_once_with(expected)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_edit(self):
         test_args = shlex.split("edit test_guid 'these are comments'")
         expected = ['test_guid', 'these are comments']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
-        self.assertFalse(self.mock_complete.called)
+        assert not self.mock_show.called
+        assert not self.mock_complete.called
         self.mock_modify.assert_called_once_with(expected)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_comment(self):
         test_args = shlex.split("comment test_guid 'these are comments'")
         expected = ['test_guid', 'these are comments']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
-        self.assertFalse(self.mock_complete.called)
+        assert not self.mock_show.called
+        assert not self.mock_complete.called
         self.mock_modify.assert_called_once_with(expected)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_comments(self):
         test_args = shlex.split("comments test_guid 'these are comments'")
         expected = ['test_guid', 'these are comments']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
-        self.assertFalse(self.mock_complete.called)
+        assert not self.mock_show.called
+        assert not self.mock_complete.called
         self.mock_modify.assert_called_once_with(expected)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_add.called
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_add(self):
         test_args = shlex.split("add 'this is a new item'")
         expected = ['this is a new item']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
-        self.assertFalse(self.mock_complete.called)
-        self.assertFalse(self.mock_modify.called)
+        assert not self.mock_show.called
+        assert not self.mock_complete.called
+        assert not self.mock_modify.called
         self.mock_add.assert_called_once_with(expected)
-        self.assertFalse(self.mock_move.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_move.called
+        assert not self.mock_help.called
 
     def test_move(self):
         test_args = shlex.split("move old_guid new_guid")
         expected = ['old_guid', 'new_guid']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
-        self.assertFalse(self.mock_complete.called)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_show.called
+        assert not self.mock_complete.called
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_help.called
         self.mock_move.assert_called_once_with(expected)
 
     def test_mv(self):
         test_args = shlex.split("mv old_guid new_guid")
         expected = ['old_guid', 'new_guid']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
-        self.assertFalse(self.mock_complete.called)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_help.called)
+        assert not self.mock_show.called
+        assert not self.mock_complete.called
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_help.called
         self.mock_move.assert_called_once_with(expected)
 
     def test_index_error(self):
@@ -819,57 +823,56 @@ class TestRun(unittest.TestCase):
 
         test_args = shlex.split("add 'this is a new item'")
         run(test_args)
-        self.mock_Color.assert_called_once_with('{autored}Incorrect number of arguments provided{/autored}')
+        term.red.assert_called_once_with('Incorrect number of arguments provided')
 
     def test_connection_error(self):
         self.mock_add.side_effect = requests.exceptions.ConnectionError()
 
         test_args = shlex.split("add 'this is a new item'")
         run(test_args)
-        self.mock_Color.assert_called_once_with('{autored}Unable to connect to Vittlify instance at vittlify_url{/autored}')
+        term.red.assert_called_once_with('Unable to connect to Vittlify instance at vittlify_url')
 
     def test_http_error(self):
         self.mock_add.side_effect = requests.exceptions.HTTPError('500 Message')
 
         test_args = shlex.split("add 'this is a new item'")
         run(test_args)
-        self.mock_Color.assert_called_once_with('{autored}Server responded with 500 Message{/autored}')
+        term.red.assert_called_once_with('Server responded with 500 Message')
 
     def test_help(self):
         test_args = shlex.split("help command")
         expected = ['command']
         run(test_args)
-        self.assertFalse(self.mock_show.called)
-        self.assertFalse(self.mock_complete.called)
-        self.assertFalse(self.mock_modify.called)
-        self.assertFalse(self.mock_add.called)
-        self.assertFalse(self.mock_move.called)
+        assert not self.mock_show.called
+        assert not self.mock_complete.called
+        assert not self.mock_modify.called
+        assert not self.mock_add.called
+        assert not self.mock_move.called
         self.mock_help.assert_called_once_with(expected)
 
 
-class TestDisplayShoppingListCategories(unittest.TestCase):
-    def setUp(self):
+class TestDisplayShoppingListCategories:
+    @pytest.fixture(autouse=True)
+    def setUp(self, mocker):
         self.get_shopping_list_info_patcher = mock.patch('vt.vt.get_shopping_list_info')
         self.mock_get_shopping_list_info = self.get_shopping_list_info_patcher.start()
 
         self.print_table_patcher = mock.patch('vt.vt.print_table')
         self.mock_print_table = self.print_table_patcher.start()
 
-        self.Color_patcher = mock.patch('vt.vt.Color')
-        self.mock_Color = self.Color_patcher.start()
+        mocker.patch.object(term, 'red', autospec=True)
 
         self.mock_get_shopping_list_info.return_value = {'name': 'test_list'}
 
-    def tearDown(self):
+        yield
         self.get_shopping_list_info_patcher.stop()
         self.print_table_patcher.stop()
-        self.Color_patcher.stop()
 
     def test_no_categories(self):
         display_shopping_list_categories('test_guid')
         self.mock_get_shopping_list_info.assert_called_once_with('test_guid')
 
-        self.mock_Color.assert_called_once_with("{autored}No categories found for test_list{/autored}.")
+        term.red.assert_called_once_with("No categories found for test_list.")
 
     def test_has_categories(self):
         self.mock_get_shopping_list_info.return_value = {'name': 'test_list',
@@ -881,6 +884,7 @@ class TestDisplayShoppingListCategories(unittest.TestCase):
         display_shopping_list_categories('test_guid')
         self.mock_print_table.assert_called_once_with([['type A'], ['type B']],
                                                       title='test_list')
+
 
 class TestHelp(unittest.TestCase):
     def setUp(self):
