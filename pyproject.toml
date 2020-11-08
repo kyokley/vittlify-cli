@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "vittlify-cli"
+name = "vt"
 version = "0.1.0"
 description = ""
 authors = ["Kevin Yokley <kyokley2@gmail.com>"]
