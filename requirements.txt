@@ -1,5 +1,0 @@
-requests
-pysocks
-git+https://github.com/kyokley/terminaltables.git
-cryptography
-colorclass
