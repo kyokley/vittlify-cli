@@ -31,10 +31,10 @@ FROM base AS prod
 COPY --from=builder /venv /venv
 COPY . /app
 
-ENTRYPOINT ["vt"]
+ENTRYPOINT ["poetry", "run", "vt"]
 
 FROM base AS dev
 COPY --from=dev-builder /venv /venv
 
 COPY . /app
-ENTRYPOINT ["vt"]
+ENTRYPOINT ["poetry", "run", "vt"]

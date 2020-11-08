@@ -39,7 +39,7 @@ def apply_strikethrough(string):
     # string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)',
                     # r'{strike}\1{/strike}',
                     # string)
-    return string
+    return f'{term.dim}{string}{term.normal}'
 
 
 def format_row(item,
