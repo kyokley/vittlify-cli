@@ -7,8 +7,11 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 
-from colorclass import Color
 from terminaltables import AsciiTable, BorderlessTable
+from blessings import Terminal
+
+
+term = Terminal()
 
 
 class VittlifyError(Exception):
@@ -25,15 +28,17 @@ def print_table(data, title=None, quiet=False):
     if data:
         table = table_class(data)
         if title:
-            table.title = Color("{autoyellow}%(title)s{/autoyellow}" % {'title': title})
+            table.title = term.yellow(title)
         table.inner_heading_row_border = False
         print(table.table)
     else:
-        print(Color("{autored}No data found.{/autored}"))
+        print(term.red("No data found."))
 
 
 def apply_strikethrough(string):
-    string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)', r'{strike}\1{/strike}', string)
+    # string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)',
+                    # r'{strike}\1{/strike}',
+                    # string)
     return string
 
 
@@ -52,38 +57,44 @@ def format_row(item,
         name = '  %s' % item['name']
 
     if item.get('done'):
-        guid = '{autoblue}%s{/autoblue}' % apply_strikethrough(item['guid'][:8])
-        name = '{automagenta}%s{/automagenta}' % apply_strikethrough(name)
+        guid = term.blue(apply_strikethrough(item['guid'][:8]))
+        name = term.magenta(apply_strikethrough(name))
         if comments:
             comments = apply_strikethrough(comments)
 
         if category:
             category = apply_strikethrough(category)
     else:
-        guid = '{autoblue}%s{/autoblue}' % item['guid'][:8]
-        name = '{automagenta}%s{/automagenta}' % name
+        guid = term.blue(item['guid'][:8])
+        name = term.magenta(name)
 
     if include_category and shopping_list and shopping_list['categories']:
-        row.extend([Color(guid), Color(category), Color(name)])
+        row.extend([guid, category, name])
     else:
-        row.extend([Color(guid), Color(name)])
+        row.extend([guid, name])
 
     if include_comments and comments:
-        comments = Color(comments)
         row.append(comments)
     return row
 
 
 def get_encoded_signature(message):
-    PRIVATE_KEY_FILENAME = os.environ.get('VT_PRIVATE_KEY') or os.path.expanduser('~/.ssh/id_rsa')
+    PRIVATE_KEY_FILENAME = (os.environ.get('VT_PRIVATE_KEY') or
+                            os.path.expanduser('~/.ssh/id_rsa')
+                            )
 
     try:
         with open(PRIVATE_KEY_FILENAME, 'rb') as f:
             PRIVATE_KEY = f.read()
     except IOError:
-        raise VittlifyError('Could not find private key at %s' % PRIVATE_KEY_FILENAME)
+        raise VittlifyError(
+            f'Could not find private key at {PRIVATE_KEY_FILENAME}'
+        )
 
-    rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend())
+    rsaObj = serialization.load_pem_private_key(
+        PRIVATE_KEY,
+        None,
+        default_backend())
 
     signature = rsaObj.sign(message,
                             padding.PSS(mgf=padding.MGF1(hashes.SHA512()),

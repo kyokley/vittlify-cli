@@ -9,6 +9,7 @@ USERNAME = os.environ.get('VT_USERNAME') or os.environ.get('USER')
 PROXY = os.environ.get('VT_PROXY')
 REQUEST_TIMEOUT = 5
 
+
 def _get_proxy_dict(proxy):
     proxy_dict = {}
     if not proxy:
@@ -23,6 +24,7 @@ def _get_proxy_dict(proxy):
     else:
         proxy_dict[split[0]] = proxy
     return proxy_dict
+
 
 def _send_request(method, data):
     data['username'] = USERNAME
@@ -54,10 +56,12 @@ def _send_request(method, data):
     resp.raise_for_status()
     return resp.json()
 
+
 def get_all_shopping_lists():
     data = {'endpoint': 'all lists'}
 
     return _send_request('GET', data)
+
 
 def get_shopping_list_info(guid):
     data = {'endpoint': 'list',
@@ -65,11 +69,13 @@ def get_shopping_list_info(guid):
             }
     return _send_request('GET', data)
 
+
 def get_shopping_list_items(guid):
     data = {'endpoint': 'list items',
             'guid': guid,
             }
     return _send_request('GET', data)
+
 
 def get_all_shopping_list_items(guid):
     data = {'endpoint': 'list all items',
@@ -77,10 +83,12 @@ def get_all_shopping_list_items(guid):
             }
     return _send_request('GET', data)
 
+
 def get_completed():
     data = {'endpoint': 'completed',
             }
     return _send_request('GET', data)
+
 
 def get_item(guid):
     data = {'endpoint': 'item',
@@ -88,11 +96,13 @@ def get_item(guid):
             }
     return _send_request('GET', data)
 
+
 def complete_item(guid, uncomplete=False):
     data = {'endpoint': 'complete' if not uncomplete else 'uncomplete',
             'guid': guid,
             }
     return _send_request('PUT', data)
+
 
 def modify_item(guid, comments, append=False, delete=False):
     data = {'endpoint': 'modify',
@@ -102,6 +112,7 @@ def modify_item(guid, comments, append=False, delete=False):
             'delete': delete}
     return _send_request('PUT', data)
 
+
 def add_item(guid, name, comments=''):
     data = {'endpoint': 'add item',
             'guid': guid,
@@ -109,12 +120,14 @@ def add_item(guid, name, comments=''):
             'comments': comments}
     return _send_request('POST', data)
 
+
 def move_item(guid, to_guid):
     data = {'endpoint': 'move',
             'guid': guid,
             'to_list_guid': to_guid,
             }
     return _send_request('PUT', data)
+
 
 def categorize_item(guid, category_name):
     data = {'endpoint': 'categorize',
