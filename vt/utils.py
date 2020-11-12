@@ -1,7 +1,6 @@
 from __future__ import print_function
 import os
 import base64
-import re
 
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.backends import default_backend
