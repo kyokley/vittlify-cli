@@ -9,6 +9,7 @@ python = "^3.8"
 requests = "^2.24.0"
 pysocks = "^1.7.1"
 cryptography = "^3.2.1"
+blessings = "^1.7"
 
 [tool.poetry.dev-dependencies]
 pytest-mock = "^3.3.1"
