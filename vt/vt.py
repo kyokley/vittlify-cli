@@ -305,18 +305,24 @@ def run(args):
             raise
         else:
             print(GENERAL_HELP)
+        sys.exit(1)
     except requests.exceptions.ConnectionError:
-        print(term.red(f'Unable to connect to Vittlify instance at {VITTLIFY_URL}'))
+        print(
+            term.red(
+                f'Unable to connect to Vittlify instance at {VITTLIFY_URL}'))
         if PROXY:
             print(term.red(f'Attempted to use proxy at {PROXY}'))
         if SHOW_TRACEBACK:
             raise
+        sys.exit(1)
     except requests.exceptions.HTTPError as e:
         print(term.red(f'Server responded with {e}'))
         if SHOW_TRACEBACK:
             raise
+        sys.exit(1)
     except VittlifyError as e:
         print(term.red(f"{e}"))
+        sys.exit(1)
 
 
 def main():
