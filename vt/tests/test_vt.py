@@ -822,21 +822,24 @@ class TestRun:
         self.mock_add.side_effect = IndexError()
 
         test_args = shlex.split("add 'this is a new item'")
-        run(test_args)
+        with pytest.raises(SystemExit):
+            run(test_args)
         term.red.assert_called_once_with('Incorrect number of arguments provided')
 
     def test_connection_error(self):
         self.mock_add.side_effect = requests.exceptions.ConnectionError()
 
         test_args = shlex.split("add 'this is a new item'")
-        run(test_args)
+        with pytest.raises(SystemExit):
+            run(test_args)
         term.red.assert_called_once_with('Unable to connect to Vittlify instance at vittlify_url')
 
     def test_http_error(self):
         self.mock_add.side_effect = requests.exceptions.HTTPError('500 Message')
 
         test_args = shlex.split("add 'this is a new item'")
-        run(test_args)
+        with pytest.raises(SystemExit):
+            run(test_args)
         term.red.assert_called_once_with('Server responded with 500 Message')
 
     def test_help(self):
