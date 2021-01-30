@@ -1,4 +1,5 @@
 from __future__ import print_function
+import textwrap
 import os
 import base64
 
@@ -35,16 +36,25 @@ def print_table(data, title=None, quiet=False):
 
 
 def apply_strikethrough(string):
-    # string = re.sub(r'(?:^|(?<=[\s}]))(\S+)(?=[\s{]|$)',
-                    # r'{strike}\1{/strike}',
-                    # string)
     return f'{term.dim}{string}{term.normal}'
+
+
+def wrap_text(text, width=70):
+    return '\n'.join([textwrap.fill(line,
+                                    width=width,
+                                    replace_whitespace=False)
+                      for line in text.splitlines()])
 
 
 def format_row(item,
                shopping_list=None,
                include_comments=False,
                include_category=False):
+    # Name + GUID plus cateory and comments if those are included defines the
+    # number of columns for display.
+    num_columns = sum([
+        2, include_category, include_comments])
+    wrap_width = min(int((term.width - 8)/num_columns), 70)
     row = []
 
     comments = item.get('comments')
@@ -54,6 +64,7 @@ def format_row(item,
         name = '+ %s' % item['name']
     else:
         name = '  %s' % item['name']
+    name = wrap_text(name, width=wrap_width)
 
     if item.get('done'):
         guid = term.blue(apply_strikethrough(item['guid'][:8]))
@@ -73,6 +84,7 @@ def format_row(item,
         row.extend([guid, name])
 
     if include_comments and comments:
+        comments = wrap_text(comments, width=wrap_width)
         row.append(comments)
     return row
 
