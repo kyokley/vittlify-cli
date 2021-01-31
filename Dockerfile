@@ -33,6 +33,7 @@ COPY . /app
 ENTRYPOINT ["poetry", "run", "vt"]
 
 FROM base AS dev
+RUN apk add --no-cache git
 COPY --from=dev-builder /venv /venv
 
 COPY . /app
