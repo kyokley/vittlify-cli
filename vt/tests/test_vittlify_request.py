@@ -1,19 +1,23 @@
 import unittest
+
 import mock
-from vt.vittlify_request import (_send_request,
-                                 VittlifyError,
-                                 get_all_shopping_lists,
-                                 get_shopping_list_info,
-                                 get_shopping_list_items,
-                                 get_all_shopping_list_items,
-                                 get_completed,
-                                 get_item,
-                                 add_item,
-                                 modify_item,
-                                 complete_item,
-                                 move_item,
-                                 _get_proxy_dict,
-                                 )
+
+from vt.vittlify_request import (
+    VittlifyError,
+    _get_proxy_dict,
+    _send_request,
+    add_item,
+    complete_item,
+    get_all_shopping_list_items,
+    get_all_shopping_lists,
+    get_completed,
+    get_item,
+    get_shopping_list_info,
+    get_shopping_list_items,
+    modify_item,
+    move_item,
+)
+
 
 class TestGetProxy(unittest.TestCase):
     def test_none(self):
@@ -43,24 +47,31 @@ class TestGetProxy(unittest.TestCase):
     def test_socks5(self):
         proxy = 'socks5://www.example.com:80'
 
-        expected = {'http': 'socks5://www.example.com:80',
-                    'https': 'socks5://www.example.com:80'}
+        expected = {
+            'http': 'socks5://www.example.com:80',
+            'https': 'socks5://www.example.com:80',
+        }
         actual = _get_proxy_dict(proxy)
 
         self.assertEqual(expected, actual)
+
 
 class TestSendRequest(unittest.TestCase):
     def setUp(self):
         self.PROXY_patcher = mock.patch('vt.vittlify_request.PROXY', 'PROXY')
         self.PROXY_patcher.start()
 
-        self.REQUEST_TIMEOUT_patcher = mock.patch('vt.vittlify_request.REQUEST_TIMEOUT', 'REQUEST_TIMEOUT')
+        self.REQUEST_TIMEOUT_patcher = mock.patch(
+            'vt.vittlify_request.REQUEST_TIMEOUT', 'REQUEST_TIMEOUT'
+        )
         self.REQUEST_TIMEOUT_patcher.start()
 
         self._get_proxy_dict_patcher = mock.patch('vt.vittlify_request._get_proxy_dict')
         self.mock_get_proxy_dict = self._get_proxy_dict_patcher.start()
 
-        self.VITTLIFY_URL_patcher = mock.patch('vt.vittlify_request.VITTLIFY_URL', 'VITTLIFY_URL/')
+        self.VITTLIFY_URL_patcher = mock.patch(
+            'vt.vittlify_request.VITTLIFY_URL', 'VITTLIFY_URL/'
+        )
         self.VITTLIFY_URL_patcher.start()
 
         self.USERNAME_patcher = mock.patch('vt.vittlify_request.USERNAME', 'USERNAME')
@@ -69,7 +80,9 @@ class TestSendRequest(unittest.TestCase):
         self.json_patcher = mock.patch('vt.vittlify_request.json')
         self.mock_json = self.json_patcher.start()
 
-        self.get_encoded_signature_patcher = mock.patch('vt.vittlify_request.get_encoded_signature')
+        self.get_encoded_signature_patcher = mock.patch(
+            'vt.vittlify_request.get_encoded_signature'
+        )
         self.mock_get_encoded_signature = self.get_encoded_signature_patcher.start()
 
         self.requests_patcher = mock.patch('vt.vittlify_request.requests')
@@ -91,15 +104,22 @@ class TestSendRequest(unittest.TestCase):
         actual = _send_request('get', test_data)
 
         self.assertEqual(expected, actual)
-        self.mock_json.dumps.assert_called_once_with({'data': 'test_data',
-                                                      'username': 'USERNAME'})
-        self.mock_get_encoded_signature.assert_called_once_with(self.mock_json.dumps.return_value.encode.return_value)
+        self.mock_json.dumps.assert_called_once_with(
+            {'data': 'test_data', 'username': 'USERNAME'}
+        )
+        self.mock_get_encoded_signature.assert_called_once_with(
+            self.mock_json.dumps.return_value.encode.return_value
+        )
         self.mock_get_proxy_dict.assert_called_once_with('PROXY')
-        self.mock_requests.get.assert_called_once_with('VITTLIFY_URL/vt/',
-                                                       json={'message': self.mock_json.dumps.return_value,
-                                                             'signature': self.mock_get_encoded_signature.return_value.decode.return_value},
-                                                       proxies=self.mock_get_proxy_dict.return_value,
-                                                       timeout='REQUEST_TIMEOUT')
+        self.mock_requests.get.assert_called_once_with(
+            'VITTLIFY_URL/vt/',
+            json={
+                'message': self.mock_json.dumps.return_value,
+                'signature': self.mock_get_encoded_signature.return_value.decode.return_value,
+            },
+            proxies=self.mock_get_proxy_dict.return_value,
+            timeout='REQUEST_TIMEOUT',
+        )
 
     def test_put(self):
         test_data = {'data': 'test_data'}
@@ -107,15 +127,22 @@ class TestSendRequest(unittest.TestCase):
         actual = _send_request('put', test_data)
 
         self.assertEqual(expected, actual)
-        self.mock_json.dumps.assert_called_once_with({'data': 'test_data',
-                                                      'username': 'USERNAME'})
-        self.mock_get_encoded_signature.assert_called_once_with(self.mock_json.dumps.return_value.encode.return_value)
+        self.mock_json.dumps.assert_called_once_with(
+            {'data': 'test_data', 'username': 'USERNAME'}
+        )
+        self.mock_get_encoded_signature.assert_called_once_with(
+            self.mock_json.dumps.return_value.encode.return_value
+        )
         self.mock_get_proxy_dict.assert_called_once_with('PROXY')
-        self.mock_requests.put.assert_called_once_with('VITTLIFY_URL/vt/',
-                                                       json={'message': self.mock_json.dumps.return_value,
-                                                             'signature': self.mock_get_encoded_signature.return_value.decode.return_value},
-                                                       proxies=self.mock_get_proxy_dict.return_value,
-                                                       timeout='REQUEST_TIMEOUT')
+        self.mock_requests.put.assert_called_once_with(
+            'VITTLIFY_URL/vt/',
+            json={
+                'message': self.mock_json.dumps.return_value,
+                'signature': self.mock_get_encoded_signature.return_value.decode.return_value,
+            },
+            proxies=self.mock_get_proxy_dict.return_value,
+            timeout='REQUEST_TIMEOUT',
+        )
 
     def test_post(self):
         test_data = {'data': 'test_data'}
@@ -123,33 +150,35 @@ class TestSendRequest(unittest.TestCase):
         actual = _send_request('post', test_data)
 
         self.assertEqual(expected, actual)
-        self.mock_json.dumps.assert_called_once_with({'data': 'test_data',
-                                                      'username': 'USERNAME'})
-        self.mock_get_encoded_signature.assert_called_once_with(self.mock_json.dumps.return_value.encode.return_value)
+        self.mock_json.dumps.assert_called_once_with(
+            {'data': 'test_data', 'username': 'USERNAME'}
+        )
+        self.mock_get_encoded_signature.assert_called_once_with(
+            self.mock_json.dumps.return_value.encode.return_value
+        )
         self.mock_get_proxy_dict.assert_called_once_with('PROXY')
-        self.mock_requests.post.assert_called_once_with('VITTLIFY_URL/vt/',
-                                                        json={'message': self.mock_json.dumps.return_value,
-                                                              'signature': self.mock_get_encoded_signature.return_value.decode.return_value},
-                                                        proxies=self.mock_get_proxy_dict.return_value,
-                                                        timeout='REQUEST_TIMEOUT')
+        self.mock_requests.post.assert_called_once_with(
+            'VITTLIFY_URL/vt/',
+            json={
+                'message': self.mock_json.dumps.return_value,
+                'signature': self.mock_get_encoded_signature.return_value.decode.return_value,
+            },
+            proxies=self.mock_get_proxy_dict.return_value,
+            timeout='REQUEST_TIMEOUT',
+        )
 
     def test_raises_vittlify_error_for_404(self):
         test_data = {'data': 'test_data'}
 
         self.mock_requests.get.return_value.status_code = 404
-        self.assertRaises(VittlifyError,
-                          _send_request,
-                          'get',
-                          test_data)
+        self.assertRaises(VittlifyError, _send_request, 'get', test_data)
 
     def test_raises_vittlify_error_for_409(self):
         test_data = {'data': 'test_data'}
 
         self.mock_requests.get.return_value.status_code = 409
-        self.assertRaises(VittlifyError,
-                          _send_request,
-                          'get',
-                          test_data)
+        self.assertRaises(VittlifyError, _send_request, 'get', test_data)
+
 
 class TestGetAllShoppingLists(unittest.TestCase):
     def setUp(self):
@@ -168,8 +197,13 @@ class TestGetAllShoppingLists(unittest.TestCase):
         actual = get_all_shopping_lists()
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'all lists',
-                                                               })
+        self.mock_send_request.assert_called_once_with(
+            'GET',
+            {
+                'endpoint': 'all lists',
+            },
+        )
+
 
 class TestGetShoppingListInfo(unittest.TestCase):
     def setUp(self):
@@ -189,8 +223,10 @@ class TestGetShoppingListInfo(unittest.TestCase):
         actual = get_shopping_list_info(test_guid)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'list',
-                                                               'guid': 'test_guid'})
+        self.mock_send_request.assert_called_once_with(
+            'GET', {'endpoint': 'list', 'guid': 'test_guid'}
+        )
+
 
 class TestGetShoppingListItems(unittest.TestCase):
     def setUp(self):
@@ -210,8 +246,10 @@ class TestGetShoppingListItems(unittest.TestCase):
         actual = get_shopping_list_items(test_guid)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'list items',
-                                                               'guid': 'test_guid'})
+        self.mock_send_request.assert_called_once_with(
+            'GET', {'endpoint': 'list items', 'guid': 'test_guid'}
+        )
+
 
 class TestGetAllShoppingListItems(unittest.TestCase):
     def setUp(self):
@@ -231,8 +269,10 @@ class TestGetAllShoppingListItems(unittest.TestCase):
         actual = get_all_shopping_list_items(test_guid)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'list all items',
-                                                               'guid': 'test_guid'})
+        self.mock_send_request.assert_called_once_with(
+            'GET', {'endpoint': 'list all items', 'guid': 'test_guid'}
+        )
+
 
 class TestGetCompleted(unittest.TestCase):
     def setUp(self):
@@ -251,8 +291,13 @@ class TestGetCompleted(unittest.TestCase):
         actual = get_completed()
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'completed',
-                                                               })
+        self.mock_send_request.assert_called_once_with(
+            'GET',
+            {
+                'endpoint': 'completed',
+            },
+        )
+
 
 class TestGetItem(unittest.TestCase):
     def setUp(self):
@@ -272,8 +317,10 @@ class TestGetItem(unittest.TestCase):
         actual = get_item(test_guid)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('GET', {'endpoint': 'item',
-                                                               'guid': test_guid})
+        self.mock_send_request.assert_called_once_with(
+            'GET', {'endpoint': 'item', 'guid': test_guid}
+        )
+
 
 class TestCompleteItem(unittest.TestCase):
     def setUp(self):
@@ -293,8 +340,9 @@ class TestCompleteItem(unittest.TestCase):
         actual = complete_item(test_guid)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'complete',
-                                                               'guid': test_guid})
+        self.mock_send_request.assert_called_once_with(
+            'PUT', {'endpoint': 'complete', 'guid': test_guid}
+        )
 
     def test_uncomplete(self):
         test_guid = 'test_guid'
@@ -302,8 +350,10 @@ class TestCompleteItem(unittest.TestCase):
         actual = complete_item(test_guid, uncomplete=True)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'uncomplete',
-                                                               'guid': test_guid})
+        self.mock_send_request.assert_called_once_with(
+            'PUT', {'endpoint': 'uncomplete', 'guid': test_guid}
+        )
+
 
 class TestModifyItem(unittest.TestCase):
     def setUp(self):
@@ -324,11 +374,16 @@ class TestModifyItem(unittest.TestCase):
         actual = modify_item(test_guid, comments)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'modify',
-                                                               'guid': test_guid,
-                                                               'comments': comments,
-                                                               'append': False,
-                                                               'delete': False})
+        self.mock_send_request.assert_called_once_with(
+            'PUT',
+            {
+                'endpoint': 'modify',
+                'guid': test_guid,
+                'comments': comments,
+                'append': False,
+                'delete': False,
+            },
+        )
 
     def test_append(self):
         test_guid = 'test_guid'
@@ -337,11 +392,16 @@ class TestModifyItem(unittest.TestCase):
         actual = modify_item(test_guid, comments, append=True)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'modify',
-                                                               'guid': test_guid,
-                                                               'comments': comments,
-                                                               'append': True,
-                                                               'delete': False})
+        self.mock_send_request.assert_called_once_with(
+            'PUT',
+            {
+                'endpoint': 'modify',
+                'guid': test_guid,
+                'comments': comments,
+                'append': True,
+                'delete': False,
+            },
+        )
 
     def test_delete(self):
         test_guid = 'test_guid'
@@ -350,11 +410,17 @@ class TestModifyItem(unittest.TestCase):
         actual = modify_item(test_guid, comments, delete=True)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'modify',
-                                                               'guid': test_guid,
-                                                               'comments': comments,
-                                                               'append': False,
-                                                               'delete': True})
+        self.mock_send_request.assert_called_once_with(
+            'PUT',
+            {
+                'endpoint': 'modify',
+                'guid': test_guid,
+                'comments': comments,
+                'append': False,
+                'delete': True,
+            },
+        )
+
 
 class TestAddItem(unittest.TestCase):
     def setUp(self):
@@ -377,10 +443,16 @@ class TestAddItem(unittest.TestCase):
         actual = add_item(test_guid, name, comments=comments)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('POST', {'endpoint': 'add item',
-                                                                'guid': test_guid,
-                                                                'comments': comments,
-                                                                'name': name})
+        self.mock_send_request.assert_called_once_with(
+            'POST',
+            {
+                'endpoint': 'add item',
+                'guid': test_guid,
+                'comments': comments,
+                'name': name,
+            },
+        )
+
 
 class TestMoveItem(unittest.TestCase):
     def setUp(self):
@@ -402,7 +474,11 @@ class TestMoveItem(unittest.TestCase):
         actual = move_item(test_guid, test_to_guid)
 
         self.assertEqual(expected, actual)
-        self.mock_send_request.assert_called_once_with('PUT', {'endpoint': 'move',
-                                                               'guid': test_guid,
-                                                               'to_list_guid': test_to_guid,
-                                                               })
+        self.mock_send_request.assert_called_once_with(
+            'PUT',
+            {
+                'endpoint': 'move',
+                'guid': test_guid,
+                'to_list_guid': test_to_guid,
+            },
+        )

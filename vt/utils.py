@@ -1,15 +1,14 @@
 from __future__ import print_function
-import textwrap
-import os
+
 import base64
+import os
+import textwrap
 
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import padding
-
-from terminaltables import AsciiTable, BorderlessTable
 from blessings import Terminal
-
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from terminaltables import AsciiTable, BorderlessTable
 
 term = Terminal()
 
@@ -40,25 +39,27 @@ def apply_strikethrough(string):
 
 
 def wrap_text(text, width=70):
-    return '\n'.join([textwrap.fill(line,
-                                    width=width,
-                                    replace_whitespace=False)
-                      for line in text.splitlines()])
+    return '\n'.join(
+        [
+            textwrap.fill(line, width=width, replace_whitespace=False)
+            for line in text.splitlines()
+        ]
+    )
 
 
-def format_row(item,
-               shopping_list=None,
-               include_comments=False,
-               include_category=False,
-               no_wrap=False):
+def format_row(
+    item,
+    shopping_list=None,
+    include_comments=False,
+    include_category=False,
+    no_wrap=False,
+):
     # Name + GUID plus cateory and comments if those are included defines the
     # number of columns for display.
-    num_columns = sum([
-        2, include_category, include_comments])
+    num_columns = sum([2, include_category, include_comments])
     wrap_width = (
-        min(int((term.width - 8)/num_columns), 70)
-        if term and term.width
-        else 70)
+        min(int((term.width - 8) / num_columns), 70) if term and term.width else 70
+    )
     row = []
 
     comments = item.get('comments')
@@ -97,27 +98,25 @@ def format_row(item,
 
 
 def get_encoded_signature(message):
-    PRIVATE_KEY_FILENAME = (os.environ.get('VT_PRIVATE_KEY') or
-                            os.path.expanduser('~/.ssh/id_rsa')
-                            )
+    PRIVATE_KEY_FILENAME = os.environ.get('VT_PRIVATE_KEY') or os.path.expanduser(
+        '~/.ssh/id_rsa'
+    )
 
     try:
         with open(PRIVATE_KEY_FILENAME, 'rb') as f:
             PRIVATE_KEY = f.read()
     except IOError:
-        raise VittlifyError(
-            f'Could not find private key at {PRIVATE_KEY_FILENAME}'
-        )
+        raise VittlifyError(f'Could not find private key at {PRIVATE_KEY_FILENAME}')
 
-    rsaObj = serialization.load_pem_private_key(
-        PRIVATE_KEY,
-        None,
-        default_backend())
+    rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend())
 
-    signature = rsaObj.sign(message,
-                            padding.PSS(mgf=padding.MGF1(hashes.SHA512()),
-                                        salt_length=padding.PSS.MAX_LENGTH),
-                            hashes.SHA512())
+    signature = rsaObj.sign(
+        message,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA512()), salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA512(),
+    )
     return base64.b64encode(signature)
 
 

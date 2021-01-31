@@ -1,26 +1,27 @@
 import shlex
 import unittest
-import mock
-import requests
-import pytest
 
-from vt.vt import (display_shopping_list,
-                   display_item,
-                   display_all_shopping_lists,
-                   display_shopping_list_categories,
-                   Status,
-                   show,
-                   complete,
-                   modify,
-                   add,
-                   move,
-                   run,
-                   categories,
-                   help,
-                   term,
-                   )
+import mock
+import pytest
+import requests
 
 from vt.utils import VittlifyError
+from vt.vt import (
+    Status,
+    add,
+    categories,
+    complete,
+    display_all_shopping_lists,
+    display_item,
+    display_shopping_list,
+    display_shopping_list_categories,
+    help,
+    modify,
+    move,
+    run,
+    show,
+    term,
+)
 
 
 class TestDisplayShoppingList(unittest.TestCase):
@@ -28,14 +29,20 @@ class TestDisplayShoppingList(unittest.TestCase):
         self.get_shopping_list_info_patcher = mock.patch('vt.vt.get_shopping_list_info')
         self.mock_get_shopping_list_info = self.get_shopping_list_info_patcher.start()
 
-        self.get_shopping_list_items_patcher = mock.patch('vt.vt.get_shopping_list_items')
+        self.get_shopping_list_items_patcher = mock.patch(
+            'vt.vt.get_shopping_list_items'
+        )
         self.mock_get_shopping_list_items = self.get_shopping_list_items_patcher.start()
 
         self.get_completed_patcher = mock.patch('vt.vt.get_completed')
         self.mock_get_completed = self.get_completed_patcher.start()
 
-        self.get_all_shopping_list_items_patcher = mock.patch('vt.vt.get_all_shopping_list_items')
-        self.mock_get_all_shopping_list_items = self.get_all_shopping_list_items_patcher.start()
+        self.get_all_shopping_list_items_patcher = mock.patch(
+            'vt.vt.get_all_shopping_list_items'
+        )
+        self.mock_get_all_shopping_list_items = (
+            self.get_all_shopping_list_items_patcher.start()
+        )
 
         self.format_row_patcher = mock.patch('vt.vt.format_row')
         self.mock_format_row = self.format_row_patcher.start()
@@ -46,18 +53,21 @@ class TestDisplayShoppingList(unittest.TestCase):
         test_shopping_list = {'name': 'test_list'}
         self.mock_get_shopping_list_info.return_value = test_shopping_list
 
-        test_items = [{'name': 'item1'},
-                      {'name': 'item2'},
-                      {'name': 'item3'},
-                      ]
+        test_items = [
+            {'name': 'item1'},
+            {'name': 'item2'},
+            {'name': 'item3'},
+        ]
 
         self.mock_get_shopping_list_items.return_value = test_items
         self.mock_get_all_shopping_list_items.return_value = test_items
         self.mock_get_completed.return_value = test_items
 
-        self.mock_format_row.side_effect = ['formatted_row_1',
-                                            'formatted_row_2',
-                                            'formatted_row_3']
+        self.mock_format_row.side_effect = [
+            'formatted_row_1',
+            'formatted_row_2',
+            'formatted_row_3',
+        ]
 
     def tearDown(self):
         self.get_shopping_list_info_patcher.stop()
@@ -73,12 +83,36 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_shopping_list_items.assert_called_once_with(guid)
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_category=False, include_comments=False, no_wrap=False),
-                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_category=False, include_comments=False, no_wrap=False),
-                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_category=False, include_comments=False, no_wrap=False)])
-        self.mock_print_table.assert_called_once_with(['formatted_row_1',
-                                                       'formatted_row_2',
-                                                       'formatted_row_3'], title='test_list', quiet=False)
+        self.mock_format_row.assert_has_calls(
+            [
+                mock.call(
+                    {'name': 'item1'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=False,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item2'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=False,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item3'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=False,
+                    no_wrap=False,
+                ),
+            ]
+        )
+        self.mock_print_table.assert_called_once_with(
+            ['formatted_row_1', 'formatted_row_2', 'formatted_row_3'],
+            title='test_list',
+            quiet=False,
+        )
 
     def test_all(self):
         guid = 'test_guid'
@@ -86,12 +120,36 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_all_shopping_list_items.assert_called_once_with(guid)
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_category=False, include_comments=False, no_wrap=False),
-                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_category=False, include_comments=False, no_wrap=False),
-                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_category=False, include_comments=False, no_wrap=False)])
-        self.mock_print_table.assert_called_once_with(['formatted_row_1',
-                                                       'formatted_row_2',
-                                                       'formatted_row_3'], title='test_list', quiet=False)
+        self.mock_format_row.assert_has_calls(
+            [
+                mock.call(
+                    {'name': 'item1'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=False,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item2'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=False,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item3'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=False,
+                    no_wrap=False,
+                ),
+            ]
+        )
+        self.mock_print_table.assert_called_once_with(
+            ['formatted_row_1', 'formatted_row_2', 'formatted_row_3'],
+            title='test_list',
+            quiet=False,
+        )
 
     def test_completed(self):
         guid = 'test_guid'
@@ -99,12 +157,36 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.assertFalse(self.mock_get_shopping_list_info.called)
         self.mock_get_completed.assert_called_once_with()
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, None, include_category=False, include_comments=False, no_wrap=False),
-                                               mock.call({'name': 'item2'}, None, include_category=False, include_comments=False, no_wrap=False),
-                                               mock.call({'name': 'item3'}, None, include_category=False, include_comments=False, no_wrap=False)])
-        self.mock_print_table.assert_called_once_with(['formatted_row_1',
-                                                       'formatted_row_2',
-                                                       'formatted_row_3'], title='Recently Completed', quiet=False)
+        self.mock_format_row.assert_has_calls(
+            [
+                mock.call(
+                    {'name': 'item1'},
+                    None,
+                    include_category=False,
+                    include_comments=False,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item2'},
+                    None,
+                    include_category=False,
+                    include_comments=False,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item3'},
+                    None,
+                    include_category=False,
+                    include_comments=False,
+                    no_wrap=False,
+                ),
+            ]
+        )
+        self.mock_print_table.assert_called_once_with(
+            ['formatted_row_1', 'formatted_row_2', 'formatted_row_3'],
+            title='Recently Completed',
+            quiet=False,
+        )
 
     def test_not_completed_extended(self):
         guid = 'test_guid'
@@ -112,12 +194,36 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_shopping_list_items.assert_called_once_with(guid)
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_category=False, include_comments=True, no_wrap=False),
-                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_category=False, include_comments=True, no_wrap=False),
-                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_category=False, include_comments=True, no_wrap=False)])
-        self.mock_print_table.assert_called_once_with(['formatted_row_1',
-                                                       'formatted_row_2',
-                                                       'formatted_row_3'], title='test_list', quiet=False)
+        self.mock_format_row.assert_has_calls(
+            [
+                mock.call(
+                    {'name': 'item1'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=True,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item2'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=True,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item3'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=True,
+                    no_wrap=False,
+                ),
+            ]
+        )
+        self.mock_print_table.assert_called_once_with(
+            ['formatted_row_1', 'formatted_row_2', 'formatted_row_3'],
+            title='test_list',
+            quiet=False,
+        )
 
     def test_all_extended(self):
         guid = 'test_guid'
@@ -125,12 +231,36 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.mock_get_shopping_list_info.assert_called_once_with(guid)
         self.mock_get_all_shopping_list_items.assert_called_once_with(guid)
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, {'name': 'test_list'}, include_category=False, include_comments=True, no_wrap=False),
-                                               mock.call({'name': 'item2'}, {'name': 'test_list'}, include_category=False, include_comments=True, no_wrap=False),
-                                               mock.call({'name': 'item3'}, {'name': 'test_list'}, include_category=False, include_comments=True, no_wrap=False)])
-        self.mock_print_table.assert_called_once_with(['formatted_row_1',
-                                                       'formatted_row_2',
-                                                       'formatted_row_3'], title='test_list', quiet=False)
+        self.mock_format_row.assert_has_calls(
+            [
+                mock.call(
+                    {'name': 'item1'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=True,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item2'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=True,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item3'},
+                    {'name': 'test_list'},
+                    include_category=False,
+                    include_comments=True,
+                    no_wrap=False,
+                ),
+            ]
+        )
+        self.mock_print_table.assert_called_once_with(
+            ['formatted_row_1', 'formatted_row_2', 'formatted_row_3'],
+            title='test_list',
+            quiet=False,
+        )
 
     def test_completed_extended(self):
         guid = 'test_guid'
@@ -138,12 +268,36 @@ class TestDisplayShoppingList(unittest.TestCase):
 
         self.assertFalse(self.mock_get_shopping_list_info.called)
         self.mock_get_completed.assert_called_once_with()
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'item1'}, None, include_category=False, include_comments=True, no_wrap=False),
-                                               mock.call({'name': 'item2'}, None, include_category=False, include_comments=True, no_wrap=False),
-                                               mock.call({'name': 'item3'}, None, include_category=False, include_comments=True, no_wrap=False)])
-        self.mock_print_table.assert_called_once_with(['formatted_row_1',
-                                                       'formatted_row_2',
-                                                       'formatted_row_3'], title='Recently Completed', quiet=False)
+        self.mock_format_row.assert_has_calls(
+            [
+                mock.call(
+                    {'name': 'item1'},
+                    None,
+                    include_category=False,
+                    include_comments=True,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item2'},
+                    None,
+                    include_category=False,
+                    include_comments=True,
+                    no_wrap=False,
+                ),
+                mock.call(
+                    {'name': 'item3'},
+                    None,
+                    include_category=False,
+                    include_comments=True,
+                    no_wrap=False,
+                ),
+            ]
+        )
+        self.mock_print_table.assert_called_once_with(
+            ['formatted_row_1', 'formatted_row_2', 'formatted_row_3'],
+            title='Recently Completed',
+            quiet=False,
+        )
 
 
 class TestDisplayItem(unittest.TestCase):
@@ -167,8 +321,13 @@ class TestDisplayItem(unittest.TestCase):
     def test_(self):
         display_item(self.test_guid)
         self.mock_get_item.assert_called_once_with(self.test_guid)
-        self.mock_format_row.assert_called_once_with(self.mock_get_item.return_value, None, include_comments=True, no_wrap=False)
-        self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
+        self.mock_format_row.assert_called_once_with(
+            self.mock_get_item.return_value, None, include_comments=True, no_wrap=False
+        )
+        self.mock_print_table.assert_called_once_with(
+            [self.mock_format_row.return_value]
+        )
+
 
 class TestDisplayAllShoppingLists(unittest.TestCase):
     def setUp(self):
@@ -181,13 +340,17 @@ class TestDisplayAllShoppingLists(unittest.TestCase):
         self.print_table_patcher = mock.patch('vt.vt.print_table')
         self.mock_print_table = self.print_table_patcher.start()
 
-        self.mock_get_all_shopping_lists.return_value = [{'name': 'list1'},
-                                                         {'name': 'list2'},
-                                                         {'name': 'list3'},]
+        self.mock_get_all_shopping_lists.return_value = [
+            {'name': 'list1'},
+            {'name': 'list2'},
+            {'name': 'list3'},
+        ]
 
-        self.mock_format_row.side_effect = ['formatted_row_1',
-                                            'formatted_row_2',
-                                            'formatted_row_3']
+        self.mock_format_row.side_effect = [
+            'formatted_row_1',
+            'formatted_row_2',
+            'formatted_row_3',
+        ]
 
     def tearDown(self):
         self.get_all_shopping_lists_patcher.stop()
@@ -196,13 +359,17 @@ class TestDisplayAllShoppingLists(unittest.TestCase):
     def test_(self):
         display_all_shopping_lists()
         self.mock_get_all_shopping_lists.assert_called_once_with()
-        self.mock_format_row.assert_has_calls([mock.call({'name': 'list1'}, None, no_wrap=False),
-                                               mock.call({'name': 'list2'}, None, no_wrap=False),
-                                               mock.call({'name': 'list3'}, None, no_wrap=False),])
-        self.mock_print_table.assert_called_once_with(['formatted_row_1',
-                                                       'formatted_row_2',
-                                                       'formatted_row_3'],
-                                                      title='All Lists')
+        self.mock_format_row.assert_has_calls(
+            [
+                mock.call({'name': 'list1'}, None, no_wrap=False),
+                mock.call({'name': 'list2'}, None, no_wrap=False),
+                mock.call({'name': 'list3'}, None, no_wrap=False),
+            ]
+        )
+        self.mock_print_table.assert_called_once_with(
+            ['formatted_row_1', 'formatted_row_2', 'formatted_row_3'], title='All Lists'
+        )
+
 
 class TestShowNoDefaultList(unittest.TestCase):
     def setUp(self):
@@ -212,8 +379,12 @@ class TestShowNoDefaultList(unittest.TestCase):
         self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
         self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
 
-        self.display_all_shopping_lists_patcher = mock.patch('vt.vt.display_all_shopping_lists')
-        self.mock_display_all_shopping_lists = self.display_all_shopping_lists_patcher.start()
+        self.display_all_shopping_lists_patcher = mock.patch(
+            'vt.vt.display_all_shopping_lists'
+        )
+        self.mock_display_all_shopping_lists = (
+            self.display_all_shopping_lists_patcher.start()
+        )
 
         self.display_item_patcher = mock.patch('vt.vt.display_item')
         self.mock_display_item = self.display_item_patcher.start()
@@ -226,27 +397,19 @@ class TestShowNoDefaultList(unittest.TestCase):
 
     def test_list_empty_guid(self):
         args = shlex.split("list ''")
-        self.assertRaises(IndexError,
-                          show,
-                          args)
+        self.assertRaises(IndexError, show, args)
 
     def test_list_no_guid(self):
         args = shlex.split("list")
-        self.assertRaises(IndexError,
-                          show,
-                          args)
+        self.assertRaises(IndexError, show, args)
 
     def test_list_empty_guid_extended(self):
         args = shlex.split("list '' -e")
-        self.assertRaises(IndexError,
-                          show,
-                          args)
+        self.assertRaises(IndexError, show, args)
 
     def test_list_no_guid_extended(self):
         args = shlex.split("list -e")
-        self.assertRaises(IndexError,
-                          show,
-                          args)
+        self.assertRaises(IndexError, show, args)
 
     def test_list_no_extended(self):
         args = shlex.split("list test_guid")
@@ -258,9 +421,10 @@ class TestShowNoDefaultList(unittest.TestCase):
         args = shlex.split("list test_guid -e")
         show(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(guid='test_guid',
-                                                                extended=True,
-                                                                )
+        self.mock_display_shopping_list.assert_called_once_with(
+            guid='test_guid',
+            extended=True,
+        )
 
     def test_lists(self):
         args = shlex.split("lists")
@@ -270,15 +434,11 @@ class TestShowNoDefaultList(unittest.TestCase):
 
     def test_item_no_guid(self):
         args = shlex.split("item")
-        self.assertRaises(IndexError,
-                          show,
-                          args)
+        self.assertRaises(IndexError, show, args)
 
     def test_item_empty_guid(self):
         args = shlex.split("item ''")
-        self.assertRaises(IndexError,
-                          show,
-                          args)
+        self.assertRaises(IndexError, show, args)
 
     def test_item(self):
         args = shlex.split("item test_guid")
@@ -299,11 +459,19 @@ class TestShowDefaultList:
         self.display_shopping_list_patcher = mock.patch('vt.vt.display_shopping_list')
         self.mock_display_shopping_list = self.display_shopping_list_patcher.start()
 
-        self.display_all_shopping_lists_patcher = mock.patch('vt.vt.display_all_shopping_lists')
-        self.mock_display_all_shopping_lists = self.display_all_shopping_lists_patcher.start()
+        self.display_all_shopping_lists_patcher = mock.patch(
+            'vt.vt.display_all_shopping_lists'
+        )
+        self.mock_display_all_shopping_lists = (
+            self.display_all_shopping_lists_patcher.start()
+        )
 
-        self.display_shopping_list_categories_patcher = mock.patch('vt.vt.display_shopping_list_categories')
-        self.mock_display_shopping_list_categories = self.display_shopping_list_categories_patcher.start()
+        self.display_shopping_list_categories_patcher = mock.patch(
+            'vt.vt.display_shopping_list_categories'
+        )
+        self.mock_display_shopping_list_categories = (
+            self.display_shopping_list_categories_patcher.start()
+        )
 
         mocker.patch.object(term, 'red', autospec=True)
 
@@ -338,7 +506,9 @@ class TestShowDefaultList:
         args = shlex.split("list '' -e")
         show(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(guid='default_list', extended=True)
+        self.mock_display_shopping_list.assert_called_once_with(
+            guid='default_list', extended=True
+        )
 
     def test_list_no_guid_extended(self):
         self.mock_parse_options.return_value = {'extended': True}
@@ -346,7 +516,9 @@ class TestShowDefaultList:
         args = shlex.split("list -e")
         show(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(guid='default_list', extended=True)
+        self.mock_display_shopping_list.assert_called_once_with(
+            guid='default_list', extended=True
+        )
 
     def test_list_no_extended(self):
         args = shlex.split("list test_guid")
@@ -360,9 +532,10 @@ class TestShowDefaultList:
         args = shlex.split("list test_guid -e")
         show(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(guid='test_guid',
-                                                                extended=True,
-                                                                )
+        self.mock_display_shopping_list.assert_called_once_with(
+            guid='test_guid',
+            extended=True,
+        )
 
     def test_lists(self):
         args = shlex.split("lists")
@@ -387,8 +560,9 @@ class TestShowDefaultList:
         self.mock_display_item.assert_called_once_with('test_guid')
 
     def test_display_list_categories(self):
-        self.mock_parse_options.return_value = {'categories': [{'name': 'type A'},
-                                                               {'name': 'type B'}]}
+        self.mock_parse_options.return_value = {
+            'categories': [{'name': 'type A'}, {'name': 'type B'}]
+        }
 
         args = shlex.split("test_guid")
         categories(args)
@@ -396,9 +570,12 @@ class TestShowDefaultList:
         self.mock_display_shopping_list_categories.assert_called_once_with('test_guid')
 
     def test_display_list_categories_raises(self):
-        self.mock_parse_options.return_value = {'categories': [{'name': 'type A'},
-                                                               {'name': 'type B'}]}
-        self.mock_display_shopping_list_categories.side_effect = VittlifyError('Got an error')
+        self.mock_parse_options.return_value = {
+            'categories': [{'name': 'type A'}, {'name': 'type B'}]
+        }
+        self.mock_display_shopping_list_categories.side_effect = VittlifyError(
+            'Got an error'
+        )
 
         args = shlex.split("test_guid")
         categories(args)
@@ -458,25 +635,28 @@ class TestComplete:
         args = shlex.split("test_guid")
         complete(args)
 
-        self.mock_complete_item.assert_called_once_with('test_guid',
-                                                        uncomplete=False)
+        self.mock_complete_item.assert_called_once_with('test_guid', uncomplete=False)
         self.mock_apply_strikethrough.assert_called_once_with('test_name')
-        self.mock_print.assert_called_once_with(f'Marked {term.magenta}struck_through{term.normal} as done.')
+        self.mock_print.assert_called_once_with(
+            f'Marked {term.magenta}struck_through{term.normal} as done.'
+        )
 
     def test_uncomplete(self):
         args = shlex.split("test_guid")
         complete(args, uncomplete=True)
 
-        self.mock_complete_item.assert_called_once_with('test_guid',
-                                                        uncomplete=True)
-        self.mock_print.assert_called_once_with(f'Marked {term.magenta}test_name{term.normal} undone.')
+        self.mock_complete_item.assert_called_once_with('test_guid', uncomplete=True)
+        self.mock_print.assert_called_once_with(
+            f'Marked {term.magenta}test_name{term.normal} undone.'
+        )
 
     def test_done_extended(self):
         args = shlex.split("-e")
         complete(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(extended=True,
-                                                                mode=Status.COMPLETED)
+        self.mock_display_shopping_list.assert_called_once_with(
+            extended=True, mode=Status.COMPLETED
+        )
 
     def test_completed_no_extended(self):
         args = shlex.split("")
@@ -488,7 +668,9 @@ class TestComplete:
         args = shlex.split("--extended")
         complete(args)
 
-        self.mock_display_shopping_list.assert_called_once_with(extended=True, mode=Status.COMPLETED)
+        self.mock_display_shopping_list.assert_called_once_with(
+            extended=True, mode=Status.COMPLETED
+        )
 
 
 class TestModify(unittest.TestCase):
@@ -506,24 +688,23 @@ class TestModify(unittest.TestCase):
     def test_no_options(self):
         args = shlex.split("test_guid this is a comment")
         modify(args)
-        self.mock_modify_item.assert_called_once_with('test_guid',
-                                                      'this is a comment')
+        self.mock_modify_item.assert_called_once_with('test_guid', 'this is a comment')
         self.mock_display_item.assert_called_once_with('test_guid')
 
     def test_with_short_options(self):
         args = shlex.split("test_guid -a this is a comment")
         modify(args)
-        self.mock_modify_item.assert_called_once_with('test_guid',
-                                                      'this is a comment',
-                                                      append=True)
+        self.mock_modify_item.assert_called_once_with(
+            'test_guid', 'this is a comment', append=True
+        )
         self.mock_display_item.assert_called_once_with('test_guid')
 
     def test_with_options(self):
         args = shlex.split("test_guid --append this is a comment")
         modify(args)
-        self.mock_modify_item.assert_called_once_with('test_guid',
-                                                      'this is a comment',
-                                                      append=True)
+        self.mock_modify_item.assert_called_once_with(
+            'test_guid', 'this is a comment', append=True
+        )
         self.mock_display_item.assert_called_once_with('test_guid')
 
 
@@ -551,15 +732,23 @@ class TestAddDefaultList(unittest.TestCase):
         args = shlex.split("'this is a new item'")
         add(args)
         self.mock_add_item.assert_called_once_with('default_list', 'this is a new item')
-        self.mock_format_row.assert_called_once_with(self.mock_add_item.return_value, no_wrap=False)
-        self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
+        self.mock_format_row.assert_called_once_with(
+            self.mock_add_item.return_value, no_wrap=False
+        )
+        self.mock_print_table.assert_called_once_with(
+            [self.mock_format_row.return_value]
+        )
 
     def test_with_guid(self):
         args = shlex.split("test_guid 'this is a new item'")
         add(args)
         self.mock_add_item.assert_called_once_with('test_guid', 'this is a new item')
-        self.mock_format_row.assert_called_once_with(self.mock_add_item.return_value, no_wrap=False)
-        self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
+        self.mock_format_row.assert_called_once_with(
+            self.mock_add_item.return_value, no_wrap=False
+        )
+        self.mock_print_table.assert_called_once_with(
+            [self.mock_format_row.return_value]
+        )
 
 
 class TestAddNoDefaultList(unittest.TestCase):
@@ -584,16 +773,18 @@ class TestAddNoDefaultList(unittest.TestCase):
 
     def test_no_guid(self):
         args = shlex.split("'this is a new item'")
-        self.assertRaises(IndexError,
-                          add,
-                          args)
+        self.assertRaises(IndexError, add, args)
 
     def test_with_guid(self):
         args = shlex.split("test_guid 'this is a new item'")
         add(args)
         self.mock_add_item.assert_called_once_with('test_guid', 'this is a new item')
-        self.mock_format_row.assert_called_once_with(self.mock_add_item.return_value, no_wrap=False)
-        self.mock_print_table.assert_called_once_with([self.mock_format_row.return_value])
+        self.mock_format_row.assert_called_once_with(
+            self.mock_add_item.return_value, no_wrap=False
+        )
+        self.mock_print_table.assert_called_once_with(
+            [self.mock_format_row.return_value]
+        )
 
 
 class TestMove:
@@ -611,7 +802,9 @@ class TestMove:
         args = shlex.split('test_guid to_list_guid')
         move(args)
         self.mock_move_item.assert_called_once_with('test_guid', 'to_list_guid')
-        self.mock_print.assert_called_once_with(f'Moved item {term.blue}test_guid{term.normal} to list {term.blue}to_list_guid{term.normal}')
+        self.mock_print.assert_called_once_with(
+            f'Moved item {term.blue}test_guid{term.normal} to list {term.blue}to_list_guid{term.normal}'
+        )
 
 
 class TestRun:
@@ -832,7 +1025,9 @@ class TestRun:
         test_args = shlex.split("add 'this is a new item'")
         with pytest.raises(SystemExit):
             run(test_args)
-        term.red.assert_called_once_with('Unable to connect to Vittlify instance at vittlify_url')
+        term.red.assert_called_once_with(
+            'Unable to connect to Vittlify instance at vittlify_url'
+        )
 
     def test_http_error(self):
         self.mock_add.side_effect = requests.exceptions.HTTPError('500 Message')
@@ -878,15 +1073,18 @@ class TestDisplayShoppingListCategories:
         term.red.assert_called_once_with("No categories found for test_list.")
 
     def test_has_categories(self):
-        self.mock_get_shopping_list_info.return_value = {'name': 'test_list',
-                                                         'categories': [{'name': 'type A'},
-                                                                        {'name': 'type B'},
-                                                                        ],
-                                                         }
+        self.mock_get_shopping_list_info.return_value = {
+            'name': 'test_list',
+            'categories': [
+                {'name': 'type A'},
+                {'name': 'type B'},
+            ],
+        }
 
         display_shopping_list_categories('test_guid')
-        self.mock_print_table.assert_called_once_with([['type A'], ['type B']],
-                                                      title='test_list')
+        self.mock_print_table.assert_called_once_with(
+            [['type A'], ['type B']], title='test_list'
+        )
 
 
 class TestHelp(unittest.TestCase):

@@ -19,6 +19,7 @@ bpython = "^0.20"
 pdbpp = "^0.10.2"
 mock = "^4.0.2"
 black = "^20.8b1"
+isort = "^5.7.0"
 
 [tool.poetry.scripts]
 vt = 'vt.vt:main'
