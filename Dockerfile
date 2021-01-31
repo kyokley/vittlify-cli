@@ -11,7 +11,7 @@ WORKDIR /app
 RUN apk add --no-cache libffi-dev openssl-dev musl-dev
 
 FROM base AS builder
-RUN apk add --no-cache gcc \
+RUN apk add --no-cache g++ \
                        git
 
 RUN pip install --upgrade pip wheel setuptools poetry \
