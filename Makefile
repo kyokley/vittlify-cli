@@ -24,7 +24,7 @@ publish: build ## Build and push container to DockerHub
 	docker push kyokley/vt
 
 tests: build-dev ## Run tests
-	docker run --rm -it -v $$(pwd):/app --entrypoint pytest kyokley/vt
+	docker run --rm -t -v $$(pwd):/app --entrypoint pytest kyokley/vt
 
 check-formatting: build-dev
 	docker run --rm -t -v $$(pwd):/app --entrypoint /bin/sh kyokley/vt -c " \
