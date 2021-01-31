@@ -49,7 +49,8 @@ def wrap_text(text, width=70):
 def format_row(item,
                shopping_list=None,
                include_comments=False,
-               include_category=False):
+               include_category=False,
+               no_wrap=False):
     # Name + GUID plus cateory and comments if those are included defines the
     # number of columns for display.
     num_columns = sum([
@@ -64,7 +65,9 @@ def format_row(item,
         name = '+ %s' % item['name']
     else:
         name = '  %s' % item['name']
-    name = wrap_text(name, width=wrap_width)
+
+    if not no_wrap:
+        name = wrap_text(name, width=wrap_width)
 
     if item.get('done'):
         guid = term.blue(apply_strikethrough(item['guid'][:8]))
@@ -84,7 +87,8 @@ def format_row(item,
         row.extend([guid, name])
 
     if include_comments and comments:
-        comments = wrap_text(comments, width=wrap_width)
+        if not no_wrap:
+            comments = wrap_text(comments, width=wrap_width)
         row.append(comments)
     return row
 
@@ -131,6 +135,8 @@ def parse_options(raw_options):
                 options['append'] = True
             elif arg == '--delete':
                 options['delete'] = True
+            elif arg == '--no-wrap':
+                options['no_wrap'] = True
         elif arg.startswith('-'):
             if 'e' in arg:
                 options['extended'] = True
@@ -149,5 +155,8 @@ def parse_options(raw_options):
 
             if 'd' in arg:
                 options['delete'] = True
+
+            if 'W' in arg:
+                options['no_wrap'] = True
 
     return options

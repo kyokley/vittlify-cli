@@ -67,6 +67,7 @@ def display_shopping_list(guid=None,
                           quiet=False,
                           unfinished=False,
                           include_category=False,
+                          no_wrap=False,
                           ):
     data = []
 
@@ -87,21 +88,24 @@ def display_shopping_list(guid=None,
         data.append(format_row(item,
                                shopping_list,
                                include_comments=extended,
-                               include_category=include_category))
+                               include_category=include_category,
+                               no_wrap=no_wrap))
 
     print_table(data, title=title, quiet=quiet)
 
 
-def display_item(guid):
+def display_item(guid, no_wrap=False):
     item = get_item(guid)
-    print_table([format_row(item, None, include_comments=True)])
+    print_table([
+        format_row(item, None, include_comments=True, no_wrap=no_wrap)
+    ])
 
 
-def display_all_shopping_lists():
+def display_all_shopping_lists(no_wrap=False):
     shopping_lists = get_all_shopping_lists()
     data = []
     for shopping_list in shopping_lists:
-        data.append(format_row(shopping_list, None))
+        data.append(format_row(shopping_list, None, no_wrap=no_wrap))
 
     print_table(data, title='All Lists')
 
@@ -199,7 +203,7 @@ def modify(args):
     display_item(guid)
 
 
-def add(args):
+def add(args, no_wrap=False):
     if len(args) == 1:
         if DEFAULT_LIST:
             guid = DEFAULT_LIST
@@ -210,7 +214,7 @@ def add(args):
     name = args.pop(0)
 
     item = add_item(guid, name)
-    print_table([format_row(item)])
+    print_table([format_row(item, no_wrap=no_wrap)])
 
 
 def move(args):
