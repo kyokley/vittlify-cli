@@ -11,11 +11,10 @@ WORKDIR /app
 RUN apk add --no-cache libffi-dev openssl-dev musl-dev
 
 FROM base AS builder
-RUN apk add --no-cache gcc \
+RUN apk add --no-cache g++ \
                        git
 
-RUN pip install --upgrade pip wheel && \
-    pip install --upgrade poetry \
+RUN pip install --upgrade pip wheel setuptools poetry \
     git+https://github.com/kyokley/terminaltables.git
 
 COPY pyproject.toml /app/pyproject.toml
@@ -34,6 +33,7 @@ COPY . /app
 ENTRYPOINT ["poetry", "run", "vt"]
 
 FROM base AS dev
+RUN apk add --no-cache git
 COPY --from=dev-builder /venv /venv
 
 COPY . /app

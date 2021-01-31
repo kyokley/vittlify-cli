@@ -45,7 +45,8 @@ Options:
     -e, --extended      Show extended information about items.
     -u, --unfinished    Only display items that have not been completed yet.
     -c, --categories    Include item categories in output.
-    -q, --quiet         Quiet mode. Remove any extraneous output
+    -q, --quiet         Quiet mode. Remove any extraneous output.
+    -W, --no-wrap       Do not apply any text wrapping to output.
 '''
 
 DONE_HELP = '''

@@ -1,0 +1,16 @@
+name: Lint
+on:
+  pull_request:
+  push: { branches: master }
+
+jobs:
+  lint:
+    name: Run formatting checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check formatting
+      run: make check-formatting

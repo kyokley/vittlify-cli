@@ -1,40 +1,45 @@
 from __future__ import print_function
-import sys
-import requests
-import os
 
+import os
+import sys
 from enum import Enum
+
+import requests
 from blessings import Terminal
-from .vittlify_request import (get_all_shopping_lists,
-                               get_shopping_list_info,
-                               get_shopping_list_items,
-                               get_all_shopping_list_items,
-                               get_item,
-                               get_completed,
-                               complete_item,
-                               modify_item,
-                               add_item,
-                               move_item,
-                               categorize_item,
-                               VITTLIFY_URL,
-                               PROXY,
-                               )
-from .utils import (print_table,
-                    format_row,
-                    VittlifyError,
-                    parse_options,
-                    apply_strikethrough,
-                    )
-from .help import (GENERAL_HELP,
-                   LISTS_HELP,
-                   LIST_HELP,
-                   DONE_HELP,
-                   UNDONE_HELP,
-                   COMMENT_HELP,
-                   MOVE_HELP,
-                   CATEGORIES_HELP,
-                   CATEGORIZE_HELP,
-                   )
+
+from .help import (
+    CATEGORIES_HELP,
+    CATEGORIZE_HELP,
+    COMMENT_HELP,
+    DONE_HELP,
+    GENERAL_HELP,
+    LIST_HELP,
+    LISTS_HELP,
+    MOVE_HELP,
+    UNDONE_HELP,
+)
+from .utils import (
+    VittlifyError,
+    apply_strikethrough,
+    format_row,
+    parse_options,
+    print_table,
+)
+from .vittlify_request import (
+    PROXY,
+    VITTLIFY_URL,
+    add_item,
+    categorize_item,
+    complete_item,
+    get_all_shopping_list_items,
+    get_all_shopping_lists,
+    get_completed,
+    get_item,
+    get_shopping_list_info,
+    get_shopping_list_items,
+    modify_item,
+    move_item,
+)
 
 term = Terminal()
 
@@ -61,13 +66,15 @@ class Status(StrEnum):
     ALL = 'ALL'
 
 
-def display_shopping_list(guid=None,
-                          extended=False,
-                          mode=Status.ALL,
-                          quiet=False,
-                          unfinished=False,
-                          include_category=False,
-                          ):
+def display_shopping_list(
+    guid=None,
+    extended=False,
+    mode=Status.ALL,
+    quiet=False,
+    unfinished=False,
+    include_category=False,
+    no_wrap=False,
+):
     data = []
 
     shopping_list = None
@@ -84,24 +91,29 @@ def display_shopping_list(guid=None,
         items = get_all_shopping_list_items(guid)
 
     for item in items:
-        data.append(format_row(item,
-                               shopping_list,
-                               include_comments=extended,
-                               include_category=include_category))
+        data.append(
+            format_row(
+                item,
+                shopping_list,
+                include_comments=extended,
+                include_category=include_category,
+                no_wrap=no_wrap,
+            )
+        )
 
     print_table(data, title=title, quiet=quiet)
 
 
-def display_item(guid):
+def display_item(guid, no_wrap=False):
     item = get_item(guid)
-    print_table([format_row(item, None, include_comments=True)])
+    print_table([format_row(item, None, include_comments=True, no_wrap=no_wrap)])
 
 
-def display_all_shopping_lists():
+def display_all_shopping_lists(no_wrap=False):
     shopping_lists = get_all_shopping_lists()
     data = []
     for shopping_list in shopping_lists:
-        data.append(format_row(shopping_list, None))
+        data.append(format_row(shopping_list, None, no_wrap=no_wrap))
 
     print_table(data, title='All Lists')
 
@@ -113,9 +125,7 @@ def display_shopping_list_categories(guid):
     data = []
 
     if not list_categories:
-        print(
-            term.red(
-                f"No categories found for {shopping_list['name']}."))
+        print(term.red(f"No categories found for {shopping_list['name']}."))
     else:
         for category in list_categories:
             data.append([category['name']])
@@ -182,24 +192,22 @@ def complete(args, uncomplete=False):
 
             if not uncomplete:
                 print(
-                    f'Marked {term.magenta}{apply_strikethrough(resp["name"])}{term.normal} as done.')
-            else:
-                print(
-                    f'Marked {term.magenta}{resp["name"]}{term.normal} undone.'
+                    f'Marked {term.magenta}{apply_strikethrough(resp["name"])}{term.normal} as done.'
                 )
+            else:
+                print(f'Marked {term.magenta}{resp["name"]}{term.normal} undone.')
 
 
 def modify(args):
     options = parse_options(args)
     guid = args.pop(0).lower()
 
-    comments = ' '.join(
-        [arg for arg in args if not arg.startswith('-') or ' ' in arg])
+    comments = ' '.join([arg for arg in args if not arg.startswith('-') or ' ' in arg])
     modify_item(guid, comments, **options)
     display_item(guid)
 
 
-def add(args):
+def add(args, no_wrap=False):
     if len(args) == 1:
         if DEFAULT_LIST:
             guid = DEFAULT_LIST
@@ -210,7 +218,7 @@ def add(args):
     name = args.pop(0)
 
     item = add_item(guid, name)
-    print_table([format_row(item)])
+    print_table([format_row(item, no_wrap=no_wrap)])
 
 
 def move(args):
@@ -218,7 +226,8 @@ def move(args):
     to_guid = args.pop(0).lower()
     move_item(guid, to_guid)
     print(
-        f'Moved item {term.blue}{guid}{term.normal} to list {term.blue}{to_guid}{term.normal}')
+        f'Moved item {term.blue}{guid}{term.normal} to list {term.blue}{to_guid}{term.normal}'
+    )
 
 
 def categories(args):
@@ -238,14 +247,18 @@ def categories(args):
 
 def categorize(args):
     if len(args) != 2:
-        raise IndexError('Incorrect number of arguments. Expected 2, got %s' % len(args))
+        raise IndexError(
+            'Incorrect number of arguments. Expected 2, got %s' % len(args)
+        )
 
     guid = args.pop(0).lower()
     category_name = args.pop(0).lower()
 
     try:
         item = categorize_item(guid, category_name)
-        print(f'Set item {term.blue}{item["name"]}{term.normal} to category {term.blue}{category_name.title()}{term.normal}')
+        print(
+            f'Set item {term.blue}{item["name"]}{term.normal} to category {term.blue}{category_name.title()}{term.normal}'
+        )
     except VittlifyError as e:
         print(term.red(f"{e}"))
 
@@ -307,9 +320,7 @@ def run(args):
             print(GENERAL_HELP)
         sys.exit(1)
     except requests.exceptions.ConnectionError:
-        print(
-            term.red(
-                f'Unable to connect to Vittlify instance at {VITTLIFY_URL}'))
+        print(term.red(f'Unable to connect to Vittlify instance at {VITTLIFY_URL}'))
         if PROXY:
             print(term.red(f'Attempted to use proxy at {PROXY}'))
         if SHOW_TRACEBACK:

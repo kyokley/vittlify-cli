@@ -1,16 +1,18 @@
 import os
 import sys
 import unittest
+
 import mock
 import pytest
 
-from vt.utils import (format_row,
-                      print_table,
-                      parse_options,
-                      apply_strikethrough,
-                      get_encoded_signature,
-                      term,
-                      )
+from vt.utils import (
+    apply_strikethrough,
+    format_row,
+    get_encoded_signature,
+    parse_options,
+    print_table,
+    term,
+)
 
 PY3 = sys.version_info[0] == 3
 
@@ -24,13 +26,13 @@ class TestFormatRow:
         term.blue.return_value = 'guid_Color'
         term.magenta.return_value = 'name_Color'
 
-        self.mock_shopping_list = {'categories': [{'name': 'Type A'},
-                                                  {'name': 'Type B'}],
-                                   'name': 'list_name'}
+        self.mock_shopping_list = {
+            'categories': [{'name': 'Type A'}, {'name': 'Type B'}],
+            'name': 'list_name',
+        }
 
     def test_no_comments(self):
-        item = {'guid': 'asdf',
-                'name': 'test_name'}
+        item = {'guid': 'asdf', 'name': 'test_name'}
 
         expected = ['guid_Color', 'name_Color']
         actual = format_row(item, self.mock_shopping_list)
@@ -40,9 +42,7 @@ class TestFormatRow:
         term.magenta.assert_called_once_with('  test_name')
 
     def test_item_with_comments(self):
-        item = {'guid': 'asdf',
-                'name': 'test_name',
-                'comments': 'test_comments'}
+        item = {'guid': 'asdf', 'name': 'test_name', 'comments': 'test_comments'}
 
         expected = ['guid_Color', 'name_Color']
         actual = format_row(item, self.mock_shopping_list)
@@ -52,9 +52,7 @@ class TestFormatRow:
         term.magenta.assert_called_once_with('+ test_name')
 
     def test_item_with_comments_include_comments(self):
-        item = {'guid': 'asdf',
-                'name': 'test_name',
-                'comments': 'test_comments'}
+        item = {'guid': 'asdf', 'name': 'test_name', 'comments': 'test_comments'}
 
         expected = ['guid_Color', 'name_Color', 'test_comments']
         actual = format_row(item, self.mock_shopping_list, include_comments=True)
@@ -64,9 +62,7 @@ class TestFormatRow:
         term.magenta.assert_called_once_with('+ test_name')
 
     def test_no_comments_done(self):
-        item = {'guid': 'asdf',
-                'name': 'test_name',
-                'done': True}
+        item = {'guid': 'asdf', 'name': 'test_name', 'done': True}
 
         expected = ['guid_Color', 'name_Color']
         actual = format_row(item, self.mock_shopping_list)
@@ -76,10 +72,12 @@ class TestFormatRow:
         term.magenta.assert_called_once_with(f'  {term.dim}test_name{term.normal}')
 
     def test_item_with_comments_done(self):
-        item = {'guid': 'asdf',
-                'name': 'test_name',
-                'comments': 'test_comments',
-                'done': True}
+        item = {
+            'guid': 'asdf',
+            'name': 'test_name',
+            'comments': 'test_comments',
+            'done': True,
+        }
 
         expected = ['guid_Color', 'name_Color']
         actual = format_row(item, self.mock_shopping_list)
@@ -89,10 +87,12 @@ class TestFormatRow:
         term.magenta.assert_called_once_with(f'+ {term.dim}test_name{term.normal}')
 
     def test_item_with_comments_include_comments_done(self):
-        item = {'guid': 'asdf',
-                'name': 'test_name',
-                'comments': 'test_comments',
-                'done': True}
+        item = {
+            'guid': 'asdf',
+            'name': 'test_name',
+            'comments': 'test_comments',
+            'done': True,
+        }
 
         expected = ['guid_Color', 'name_Color', 'test_comments']
         actual = format_row(item, self.mock_shopping_list, include_comments=True)
@@ -104,14 +104,18 @@ class TestFormatRow:
     def test_categories(self):
         self.mock_shopping_list['categories'] = ['type A', 'type B']
 
-        item = {'guid': 'asdf',
-                'name': 'test_name',
-                'comments': 'test_comments',
-                'category_name': 'type A',
-                'done': True}
+        item = {
+            'guid': 'asdf',
+            'name': 'test_name',
+            'comments': 'test_comments',
+            'category_name': 'type A',
+            'done': True,
+        }
 
         expected = ['guid_Color', 'type A', 'name_Color']
-        actual = format_row(item, self.mock_shopping_list, include_comments=False, include_category=True)
+        actual = format_row(
+            item, self.mock_shopping_list, include_comments=False, include_category=True
+        )
 
         assert expected == actual
         term.blue.assert_called_once_with(f'{term.dim}asdf{term.normal}')
@@ -164,7 +168,7 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = [ '-e','asdf']
+        raw_options = ['-e', 'asdf']
         expected = {'extended': True}
         actual = parse_options(raw_options)
 
@@ -176,7 +180,7 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = [ '--extended','asdf']
+        raw_options = ['--extended', 'asdf']
         expected = {'extended': True}
         actual = parse_options(raw_options)
 
@@ -189,7 +193,7 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = [ '-q','asdf']
+        raw_options = ['-q', 'asdf']
         expected = {'quiet': True}
         actual = parse_options(raw_options)
 
@@ -201,38 +205,34 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = [ '--quiet','asdf']
+        raw_options = ['--quiet', 'asdf']
         expected = {'quiet': True}
         actual = parse_options(raw_options)
 
         assert expected == actual
 
     def test_mixed_options(self):
-        raw_options = [ '--extended','asdf', '--quiet']
-        expected = {'extended': True,
-                    'quiet': True}
+        raw_options = ['--extended', 'asdf', '--quiet']
+        expected = {'extended': True, 'quiet': True}
         actual = parse_options(raw_options)
 
         assert expected == actual
 
-        raw_options = [ '-e','asdf', '--quiet']
-        expected = {'extended': True,
-                    'quiet': True}
+        raw_options = ['-e', 'asdf', '--quiet']
+        expected = {'extended': True, 'quiet': True}
         actual = parse_options(raw_options)
 
         assert expected == actual
 
     def test_mixed_short_options(self):
-        raw_options = [ '-e','asdf', '-q']
-        expected = {'extended': True,
-                    'quiet': True}
+        raw_options = ['-e', 'asdf', '-q']
+        expected = {'extended': True, 'quiet': True}
         actual = parse_options(raw_options)
 
         assert expected == actual
 
-        raw_options = [ '-eq','asdf']
-        expected = {'extended': True,
-                    'quiet': True}
+        raw_options = ['-eq', 'asdf']
+        expected = {'extended': True, 'quiet': True}
         actual = parse_options(raw_options)
 
         assert expected == actual
@@ -244,7 +244,7 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = ['-c','asdf']
+        raw_options = ['-c', 'asdf']
         expected = {'include_category': True}
         actual = parse_options(raw_options)
 
@@ -256,7 +256,7 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = [ '--categories','asdf']
+        raw_options = ['--categories', 'asdf']
         expected = {'include_category': True}
         actual = parse_options(raw_options)
 
@@ -269,7 +269,7 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = ['-u','asdf']
+        raw_options = ['-u', 'asdf']
         expected = {'unfinished': True}
         actual = parse_options(raw_options)
 
@@ -281,7 +281,7 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = [ '--unfinished','asdf']
+        raw_options = ['--unfinished', 'asdf']
         expected = {'unfinished': True}
         actual = parse_options(raw_options)
 
@@ -294,7 +294,7 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = ['-a','asdf']
+        raw_options = ['-a', 'asdf']
         expected = {'append': True}
         actual = parse_options(raw_options)
 
@@ -306,7 +306,7 @@ class TestParseOptions(unittest.TestCase):
 
         assert expected == actual
 
-        raw_options = [ '--append','asdf']
+        raw_options = ['--append', 'asdf']
         expected = {'append': True}
         actual = parse_options(raw_options)
 
@@ -364,7 +364,9 @@ class TestGetEncodedSignature(unittest.TestCase):
         self.b64encode_patcher = mock.patch('vt.utils.base64.b64encode')
         self.mock_b64encode = self.b64encode_patcher.start()
 
-        self.load_pem_private_key_patcher = mock.patch('vt.utils.serialization.load_pem_private_key')
+        self.load_pem_private_key_patcher = mock.patch(
+            'vt.utils.serialization.load_pem_private_key'
+        )
         self.mock_load_pem_private_key = self.load_pem_private_key_patcher.start()
 
         self.default_backend_patcher = mock.patch('vt.utils.default_backend')
@@ -392,15 +394,24 @@ class TestGetEncodedSignature(unittest.TestCase):
         actual = get_encoded_signature(test_message)
 
         assert expected == actual
-        self.mock_b64encode.assert_called_once_with(self.mock_load_pem_private_key.return_value.sign.return_value)
-        self.mock_load_pem_private_key.assert_called_once_with(self.mock_open.return_value.__enter__.return_value.read.return_value,
-                                                               None,
-                                                               self.mock_default_backend.return_value)
+        self.mock_b64encode.assert_called_once_with(
+            self.mock_load_pem_private_key.return_value.sign.return_value
+        )
+        self.mock_load_pem_private_key.assert_called_once_with(
+            self.mock_open.return_value.__enter__.return_value.read.return_value,
+            None,
+            self.mock_default_backend.return_value,
+        )
 
-        self.mock_load_pem_private_key.return_value.sign.assert_called_once_with(test_message,
-                                                                                 self.mock_padding.PSS.return_value,
-                                                                                 self.mock_hashes.SHA512.return_value
-                                                                                 )
-        self.mock_padding.PSS.assert_called_once_with(mgf=self.mock_padding.MGF1.return_value,
-                                                      salt_length=self.mock_padding.PSS.MAX_LENGTH)
-        self.mock_padding.MGF1.assert_called_once_with(self.mock_hashes.SHA512.return_value)
+        self.mock_load_pem_private_key.return_value.sign.assert_called_once_with(
+            test_message,
+            self.mock_padding.PSS.return_value,
+            self.mock_hashes.SHA512.return_value,
+        )
+        self.mock_padding.PSS.assert_called_once_with(
+            mgf=self.mock_padding.MGF1.return_value,
+            salt_length=self.mock_padding.PSS.MAX_LENGTH,
+        )
+        self.mock_padding.MGF1.assert_called_once_with(
+            self.mock_hashes.SHA512.return_value
+        )
