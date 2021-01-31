@@ -1,2 +1,2 @@
-# vittlify-cli [![Build Status](https://travis-ci.org/kyokley/vittlify-cli.svg?branch=master)](https://travis-ci.org/kyokley/vittlify-cli)
+# vittlify-cli ![Test](https://github.com/kyokley/vittlify-cli/workflows/Test/badge.svg)
 CLI for Vittlify
