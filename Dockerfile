@@ -14,8 +14,7 @@ FROM base AS builder
 RUN apk add --no-cache gcc \
                        git
 
-RUN pip install --upgrade pip wheel && \
-    pip install --upgrade poetry \
+RUN pip install --upgrade pip wheel setuptools poetry \
     git+https://github.com/kyokley/terminaltables.git
 
 COPY pyproject.toml /app/pyproject.toml
