@@ -55,7 +55,10 @@ def format_row(item,
     # number of columns for display.
     num_columns = sum([
         2, include_category, include_comments])
-    wrap_width = min(int((term.width - 8)/num_columns), 70)
+    wrap_width = (
+        min(int((term.width - 8)/num_columns), 70)
+        if term and term.width
+        else 70)
     row = []
 
     comments = item.get('comments')
