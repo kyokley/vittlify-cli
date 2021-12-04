@@ -5,10 +5,10 @@ description = ""
 authors = ["Kevin Yokley <kyokley2@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 requests = "^2.24.0"
 pysocks = "^1.7.1"
-cryptography = "^3.2.1"
+cryptography = "^36.0.0"
 blessings = "^1.7"
 appdirs = "^1.4.4"
 
