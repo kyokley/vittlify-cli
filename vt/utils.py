@@ -108,15 +108,19 @@ def get_encoded_signature(message):
     except IOError:
         raise VittlifyError(f'Could not find private key at {PRIVATE_KEY_FILENAME}')
 
-    rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend())
+    try:
+        rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend())
+        signature = rsaObj.sign(
+            message,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA512()), salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA512(),
+        )
+    except Exception:
+        rsaObj = serialization.load_ssh_private_key(PRIVATE_KEY, None, default_backend())
+        signature = rsaObj.sign(message)
 
-    signature = rsaObj.sign(
-        message,
-        padding.PSS(
-            mgf=padding.MGF1(hashes.SHA512()), salt_length=padding.PSS.MAX_LENGTH
-        ),
-        hashes.SHA512(),
-    )
     return base64.b64encode(signature)
 
 
