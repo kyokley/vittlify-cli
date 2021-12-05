@@ -109,7 +109,9 @@ def get_encoded_signature(message):
         raise VittlifyError(f'Could not find private key at {PRIVATE_KEY_FILENAME}')
 
     try:
-        rsaObj = serialization.load_pem_private_key(PRIVATE_KEY, None, default_backend())
+        rsaObj = serialization.load_pem_private_key(
+            PRIVATE_KEY, None, default_backend()
+        )
         signature = rsaObj.sign(
             message,
             padding.PSS(
@@ -118,7 +120,9 @@ def get_encoded_signature(message):
             hashes.SHA512(),
         )
     except Exception:
-        rsaObj = serialization.load_ssh_private_key(PRIVATE_KEY, None, default_backend())
+        rsaObj = serialization.load_ssh_private_key(
+            PRIVATE_KEY, None, default_backend()
+        )
         signature = rsaObj.sign(message)
 
     return base64.b64encode(signature)
